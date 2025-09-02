@@ -50,7 +50,7 @@ export function QualitativeInsights() {
         <CardContent className="space-y-6">
           {testimonials.map((testimonial, index) => (
             <div key={index} className="space-y-3">
-              <blockquote className="text-sm italic text-muted-foreground">"{testimonial.quote}"</blockquote>
+              <blockquote className="text-sm italic text-muted-foreground">&quot;{testimonial.quote}&quot;</blockquote>
               <div className="flex items-center justify-between">
                 <cite className="text-sm font-medium">— {testimonial.author}</cite>
                 <Badge variant="secondary">{testimonial.outcome}</Badge>

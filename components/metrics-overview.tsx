@@ -1,5 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Users, GraduationCap, Briefcase, TrendingUp, MapPin } from "lucide-react"
+import { useEffect, useState } from "react"
 
 /**
  * Interface for metric data structure
@@ -15,7 +16,7 @@ interface Metric {
 /**
  * Static data for key performance metrics
  */
-const metrics: Metric[] = [
+const fallbackMetrics: Metric[] = [
   {
     title: "Youth Enrolled",
     value: "2,847",
@@ -63,6 +64,43 @@ const metrics: Metric[] = [
  * @returns JSX element containing the metrics overview cards
  */
 export function MetricsOverview() {
+  const [dynamic, setDynamic] = useState<{ totalStudents: number; completionRate: number } | null>(null)
+  useEffect(() => {
+    let ignore = false
+    async function load() {
+      try {
+        const res = await fetch("/api/metrics/overview", { cache: "no-store" })
+        if (!res.ok) return
+        const json = await res.json()
+        if (!ignore) setDynamic(json.data)
+      } catch {}
+    }
+    load()
+    return () => {
+      ignore = true
+    }
+  }, [])
+
+  const metrics: Metric[] = [
+    {
+      title: "Youth Enrolled",
+      value: dynamic ? String(dynamic.totalStudents) : fallbackMetrics[0].value,
+      change: fallbackMetrics[0].change,
+      icon: Users,
+      description: fallbackMetrics[0].description,
+    },
+    {
+      title: "Completion Rate",
+      value: dynamic ? `${dynamic.completionRate}%` : fallbackMetrics[1].value,
+      change: fallbackMetrics[1].change,
+      icon: GraduationCap,
+      description: fallbackMetrics[1].description,
+    },
+    fallbackMetrics[2],
+    fallbackMetrics[3],
+    fallbackMetrics[4],
+  ]
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
       {metrics.map((metric) => {
