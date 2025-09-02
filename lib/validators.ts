@@ -4,6 +4,7 @@ export const createStudentSchema = z.object({
   firstName: z.string().min(1),
   lastName: z.string().min(1),
   email: z.string().email(),
+  county: z.string().min(1),
   location: z.string().optional().nullable(),
   cohort: z.string().optional().nullable(),
   status: z.enum(["Active", "Completed", "At Risk"]).optional().default("Active"),

@@ -1,4 +1,4 @@
-import { eq, desc, asc, count, sql, and, gte, lte } from "drizzle-orm"
+import { eq, desc, asc, count, sql, and, gte } from "drizzle-orm"
 import { db } from "./db"
 import { 
   students, 
@@ -18,6 +18,19 @@ import {
  */
 export const studentQueries = {
   /**
+   * Get active cohorts
+   */
+  getActive: async () => {
+    const activeCohorts = await db
+      .select()
+      .from(cohorts)
+      .where(eq(cohorts.status, 'active'))
+      .orderBy(desc(cohorts.startDate))
+
+    return activeCohorts
+  },
+
+  /**
    * Get all students with pagination and filtering
    */
   getAll: async (options: {
@@ -31,33 +44,30 @@ export const studentQueries = {
     const { page = 1, limit = 50, status, location, gender, search } = options
     const offset = (page - 1) * limit
 
-    let query = db.select().from(students)
-
-    // Add filters
-    const conditions = []
-    if (status) conditions.push(eq(students.status, status))
-    if (location) conditions.push(eq(students.location, location))
-    if (gender) conditions.push(eq(students.gender, gender))
+    // Build WHERE clause conditions
+    const whereConditions = []
+    if (status) whereConditions.push(eq(students.status, status))
+    if (location) whereConditions.push(eq(students.location, location))
+    if (gender) whereConditions.push(eq(students.gender, gender))
     if (search) {
-      conditions.push(
+      whereConditions.push(
         sql`(${students.firstName} LIKE ${`%${search}%`} OR ${students.lastName} LIKE ${`%${search}%`} OR ${students.email} LIKE ${`%${search}%`})`
       )
     }
 
-    if (conditions.length > 0) {
-      query = query.where(and(...conditions))
-    }
+    const whereClause = whereConditions.length > 0 ? and(...whereConditions) : undefined
 
-    const data = await query
-      .orderBy(desc(students.createdAt))
-      .limit(limit)
-      .offset(offset)
+    // Get data with pagination
+    const data = whereClause 
+      ? await db.select().from(students).where(whereClause).orderBy(desc(students.createdAt)).limit(limit).offset(offset)
+      : await db.select().from(students).orderBy(desc(students.createdAt)).limit(limit).offset(offset)
 
-    // Get total count for pagination
-    const [{ count: total }] = await db
-      .select({ count: count() })
-      .from(students)
-      .where(conditions.length > 0 ? and(...conditions) : undefined)
+    // Get total count
+    const totalResult = whereClause
+      ? await db.select({ count: count() }).from(students).where(whereClause)
+      : await db.select({ count: count() }).from(students)
+    
+    const total = totalResult[0].count
 
     return {
       data,
@@ -128,12 +138,6 @@ export const metricsQueries = {
     const [{ totalEnrolled }] = await db
       .select({ totalEnrolled: count() })
       .from(students)
-
-    // Active students
-    const [{ activeStudents }] = await db
-      .select({ activeStudents: count() })
-      .from(students)
-      .where(eq(students.status, 'active'))
 
     // Completed students
     const [{ completedStudents }] = await db
@@ -365,13 +369,13 @@ export const cohortQueries = {
    * Get all active cohorts
    */
   getActive: async () => {
-    const cohorts = await db
+    const activeCohorts = await db
       .select()
       .from(cohorts)
       .where(eq(cohorts.status, 'active'))
       .orderBy(desc(cohorts.startDate))
 
-    return cohorts
+    return activeCohorts
   },
 
   /**

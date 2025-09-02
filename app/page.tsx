@@ -10,6 +10,7 @@ import { ResourceEfficiency } from "@/components/resource-efficiency"
 import { StudentManagement } from "@/components/student-management"
 import { DataInputPanel } from "@/components/data-input-panel"
 import { LongTermAnalysis } from "@/components/long-term-analysis"
+import ESGReporting from "@/components/esg-reporting"
 
 export default function DashboardPage() {
   return (
@@ -18,11 +19,12 @@ export default function DashboardPage() {
 
       <main className="container mx-auto px-4 py-8">
         <Tabs defaultValue="overview" className="space-y-8">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="overview">Impact Overview</TabsTrigger>
             <TabsTrigger value="students">Student Management</TabsTrigger>
             <TabsTrigger value="data">Data Input</TabsTrigger>
             <TabsTrigger value="analysis">Long-term Analysis</TabsTrigger>
+            <TabsTrigger value="esg">ESG Reporting</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-8">
@@ -53,6 +55,10 @@ export default function DashboardPage() {
 
           <TabsContent value="analysis">
             <LongTermAnalysis />
+          </TabsContent>
+
+          <TabsContent value="esg">
+            <ESGReporting />
           </TabsContent>
         </Tabs>
       </main>
