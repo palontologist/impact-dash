@@ -1,4 +1,7 @@
-import 'dotenv/config'
+import { config as loadEnv } from 'dotenv'
+// Load .env.local first (if present), then fallback to .env
+loadEnv({ path: '.env.local' })
+loadEnv()
 import type { Config } from "drizzle-kit"
 
 export default {
