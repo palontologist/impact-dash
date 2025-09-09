@@ -11,6 +11,7 @@ import { StudentManagement } from "@/components/student-management"
 import { DataInputPanel } from "@/components/data-input-panel"
 import { LongTermAnalysis } from "@/components/long-term-analysis"
 import ESGReporting from "@/components/esg-reporting"
+import { CalculationFormulas } from "@/components/calculation-formulas"
 
 export default function DashboardPage() {
   return (
@@ -43,6 +44,8 @@ export default function DashboardPage() {
             </div>
 
             <QualitativeInsights />
+
+            <CalculationFormulas />
           </TabsContent>
 
           <TabsContent value="students">
