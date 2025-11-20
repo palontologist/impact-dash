@@ -1,10 +1,10 @@
 import Groq from "groq-sdk"
 import { esgQueries } from "./esg-queries"
 
-// Initialize Groq client
-const groq = new Groq({
-  apiKey: process.env.GROQ_API_KEY!,
-})
+// Initialize Groq client only if API key is available
+const groq = process.env.GROQ_API_KEY ? new Groq({
+  apiKey: process.env.GROQ_API_KEY,
+}) : null
 
 export interface ESGReportRequest {
   reportType: 'gri' | 'sasb' | 'integrated' | 'custom'
@@ -141,6 +141,12 @@ Respond in JSON format with the following structure:
 }`
 
     try {
+      // Check if Groq API is available
+      if (!groq) {
+        console.warn('Groq API key not configured, using fallback analysis')
+        return this.generateFallbackAnalysis(dataContext)
+      }
+
       const completion = await groq.chat.completions.create({
         messages: [
           { role: "system", content: systemPrompt },
@@ -250,6 +256,10 @@ Provide recommendations that are:
 Respond with a JSON array of recommendation strings.`
 
     try {
+      if (!groq) {
+        throw new Error('Groq API not available')
+      }
+      
       const completion = await groq.chat.completions.create({
         messages: [{ role: "user", content: prompt }],
         model: "llama-3.1-8b-instant",
@@ -295,6 +305,10 @@ The summary should be:
 Context: This is for FrontForumFocus, an AI education program for marginalized youth in Kenya focusing on digital inclusion, employment outcomes, and social impact.`
 
     try {
+      if (!groq) {
+        throw new Error('Groq API not available')
+      }
+      
       const completion = await groq.chat.completions.create({
         messages: [{ role: "user", content: prompt }],
         model: "llama-3.1-8b-instant",
