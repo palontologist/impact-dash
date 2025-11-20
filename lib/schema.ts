@@ -234,3 +234,164 @@ export type InsertESGMetric = typeof esgMetrics.$inferInsert
 export type SelectESGMetric = typeof esgMetrics.$inferSelect
 export type InsertESGFramework = typeof esgFrameworks.$inferInsert
 export type SelectESGFramework = typeof esgFrameworks.$inferSelect
+
+// User profiles and onboarding
+export const userProfiles = sqliteTable("user_profiles", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  clerkUserId: text("clerk_user_id").unique(),
+  email: text("email").notNull(),
+  name: text("name"),
+  userType: text("user_type").notNull(), // 'consultant', 'enterprise', 'regulator'
+  selectedProfile: text("selected_profile"), // 'education', 'human_constitution', 'e2g_food'
+  industry: text("industry"),
+  reason: text("reason"), // why using dashboard: 'funding', 'regulation', 'impact_measurement', etc.
+  onboardingCompleted: integer("onboarding_completed", { mode: "boolean" }).default(false),
+  createdAt: integer("created_at", { mode: "timestamp" })
+    .default(sql`(strftime('%s','now'))`)
+    .notNull(),
+  updatedAt: integer("updated_at", { mode: "timestamp" })
+    .default(sql`(strftime('%s','now'))`)
+    .notNull(),
+})
+
+// Human Constitution Profile metrics
+export const humanConstitutionMetrics = sqliteTable("human_constitution_metrics", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  userId: integer("user_id").notNull().references(() => userProfiles.id, { onDelete: "cascade" }),
+  dignityIndex: real("dignity_index"),
+  maturityIndex: real("maturity_index"),
+  valueWheelBody: real("value_wheel_body"),
+  valueWheelEmotion: real("value_wheel_emotion"),
+  valueWheelThought: real("value_wheel_thought"),
+  valueWheelPower: real("value_wheel_power"),
+  valueWheelCommunication: real("value_wheel_communication"),
+  valueWheelLife: real("value_wheel_life"),
+  valueWheelUnity: real("value_wheel_unity"),
+  individualWellbeing: real("individual_wellbeing"),
+  mentalHealthScore: real("mental_health_score"),
+  relationshipTrust: real("relationship_trust"),
+  teamEffectiveness: real("team_effectiveness"),
+  date: integer("date", { mode: "timestamp" }).notNull(),
+  createdAt: integer("created_at", { mode: "timestamp" })
+    .default(sql`(strftime('%s','now'))`)
+    .notNull(),
+})
+
+export const humanConstitutionStories = sqliteTable("human_constitution_stories", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  userId: integer("user_id").notNull().references(() => userProfiles.id, { onDelete: "cascade" }),
+  title: text("title").notNull(),
+  content: text("content").notNull(),
+  category: text("category").notNull(), // 'highlight', 'challenge', 'breakthrough'
+  tags: text("tags"), // JSON array
+  publishedDate: integer("published_date", { mode: "timestamp" }),
+  createdAt: integer("created_at", { mode: "timestamp" })
+    .default(sql`(strftime('%s','now'))`)
+    .notNull(),
+})
+
+export const humanConstitutionSocietalIndicators = sqliteTable("human_constitution_societal_indicators", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  userId: integer("user_id").notNull().references(() => userProfiles.id, { onDelete: "cascade" }),
+  indicatorName: text("indicator_name").notNull(),
+  value: real("value").notNull(),
+  region: text("region"),
+  date: integer("date", { mode: "timestamp" }).notNull(),
+  createdAt: integer("created_at", { mode: "timestamp" })
+    .default(sql`(strftime('%s','now'))`)
+    .notNull(),
+})
+
+export const humanConstitutionHeatmaps = sqliteTable("human_constitution_heatmaps", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  userId: integer("user_id").notNull().references(() => userProfiles.id, { onDelete: "cascade" }),
+  metric: text("metric").notNull(),
+  region: text("region").notNull(),
+  intensity: real("intensity").notNull(),
+  coordinates: text("coordinates"), // JSON: { lat, lng }
+  date: integer("date", { mode: "timestamp" }).notNull(),
+  createdAt: integer("created_at", { mode: "timestamp" })
+    .default(sql`(strftime('%s','now'))`)
+    .notNull(),
+})
+
+// E2G Food Profile metrics
+export const e2gFoodMetrics = sqliteTable("e2g_food_metrics", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  userId: integer("user_id").notNull().references(() => userProfiles.id, { onDelete: "cascade" }),
+  foodBarsDelivered: integer("food_bars_delivered").default(0),
+  mealsProvided: integer("meals_provided").default(0),
+  caloriesProvided: integer("calories_provided").default(0),
+  communitiesServed: integer("communities_served").default(0),
+  regionsServed: integer("regions_served").default(0),
+  vulnerableIndividualsReached: integer("vulnerable_individuals_reached").default(0),
+  donorImpactTracked: integer("donor_impact_tracked").default(0),
+  donorRetentionRate: real("donor_retention_rate").default(0),
+  donorEngagementRate: real("donor_engagement_rate").default(0),
+  jobsCreated: integer("jobs_created").default(0),
+  localNutritionProduction: integer("local_nutrition_production").default(0),
+  microfarmsEstablished: integer("microfarms_established").default(0),
+  waterEfficiency: real("water_efficiency").default(0),
+  energyEfficiency: real("energy_efficiency").default(0),
+  ghgEmissionsSaved: real("ghg_emissions_saved").default(0),
+  zeroWastePercentage: real("zero_waste_percentage").default(0),
+  upcycledIngredients: integer("upcycled_ingredients").default(0),
+  peopleTrained: integer("people_trained").default(0),
+  partnershipsEstablished: integer("partnerships_established").default(0),
+  eventsHeld: integer("events_held").default(0),
+  ngosOnboarded: integer("ngos_onboarded").default(0),
+  charitiesOnboarded: integer("charities_onboarded").default(0),
+  impactStoriesShared: integer("impact_stories_shared").default(0),
+  mediaEndorsements: integer("media_endorsements").default(0),
+  date: integer("date", { mode: "timestamp" }).notNull(),
+  createdAt: integer("created_at", { mode: "timestamp" })
+    .default(sql`(strftime('%s','now'))`)
+    .notNull(),
+})
+
+export const e2gFoodDonors = sqliteTable("e2g_food_donors", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  userId: integer("user_id").notNull().references(() => userProfiles.id, { onDelete: "cascade" }),
+  donorName: text("donor_name").notNull(),
+  donorType: text("donor_type"), // 'individual', 'corporate', 'foundation'
+  totalDonations: real("total_donations").default(0),
+  lastDonationDate: integer("last_donation_date", { mode: "timestamp" }),
+  engagementScore: real("engagement_score").default(0),
+  retentionStatus: text("retention_status"), // 'active', 'at_risk', 'lapsed'
+  createdAt: integer("created_at", { mode: "timestamp" })
+    .default(sql`(strftime('%s','now'))`)
+    .notNull(),
+})
+
+export const e2gFoodImpactStories = sqliteTable("e2g_food_impact_stories", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  userId: integer("user_id").notNull().references(() => userProfiles.id, { onDelete: "cascade" }),
+  title: text("title").notNull(),
+  content: text("content").notNull(),
+  region: text("region"),
+  beneficiaryCount: integer("beneficiary_count"),
+  mediaType: text("media_type"), // 'text', 'image', 'video'
+  mediaUrl: text("media_url"),
+  publishedDate: integer("published_date", { mode: "timestamp" }),
+  createdAt: integer("created_at", { mode: "timestamp" })
+    .default(sql`(strftime('%s','now'))`)
+    .notNull(),
+})
+
+// Type exports
+export type InsertUserProfile = typeof userProfiles.$inferInsert
+export type SelectUserProfile = typeof userProfiles.$inferSelect
+export type InsertHumanConstitutionMetric = typeof humanConstitutionMetrics.$inferInsert
+export type SelectHumanConstitutionMetric = typeof humanConstitutionMetrics.$inferSelect
+export type InsertHumanConstitutionStory = typeof humanConstitutionStories.$inferInsert
+export type SelectHumanConstitutionStory = typeof humanConstitutionStories.$inferSelect
+export type InsertHumanConstitutionSocietalIndicator = typeof humanConstitutionSocietalIndicators.$inferInsert
+export type SelectHumanConstitutionSocietalIndicator = typeof humanConstitutionSocietalIndicators.$inferSelect
+export type InsertHumanConstitutionHeatmap = typeof humanConstitutionHeatmaps.$inferInsert
+export type SelectHumanConstitutionHeatmap = typeof humanConstitutionHeatmaps.$inferSelect
+export type InsertE2GFoodMetric = typeof e2gFoodMetrics.$inferInsert
+export type SelectE2GFoodMetric = typeof e2gFoodMetrics.$inferSelect
+export type InsertE2GFoodDonor = typeof e2gFoodDonors.$inferInsert
+export type SelectE2GFoodDonor = typeof e2gFoodDonors.$inferSelect
+export type InsertE2GFoodImpactStory = typeof e2gFoodImpactStories.$inferInsert
+export type SelectE2GFoodImpactStory = typeof e2gFoodImpactStories.$inferSelect

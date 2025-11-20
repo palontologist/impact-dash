@@ -1,27 +1,28 @@
 import type { Metadata } from "next";
+// import { ClerkProvider } from "@clerk/nextjs"; // Temporarily disabled for demo
 import "./globals.css";
 
 // Fonts temporarily removed due to network restrictions
 
 export const metadata: Metadata = {
-  title: "FrontForumFocus Impact Dashboard",
-  description: "Interactive dashboard for tracking AI education campaign impact for marginalized youth in Kenya. Monitor enrollment, outcomes, and SDG alignment.",
-  keywords: ["AI education", "Kenya", "youth empowerment", "SDG", "impact measurement", "dashboard"],
-  authors: [{ name: "FrontForumFocus Team" }],
-  creator: "FrontForumFocus",
-  publisher: "FrontForumFocus",
+  title: "Impact Dashboard - Multi-Profile Analytics Platform",
+  description: "Flexible impact measurement dashboard supporting Education, Human Constitution, and Food Security profiles for any industry.",
+  keywords: ["impact measurement", "dashboard", "analytics", "ESG", "social impact", "multi-profile"],
+  authors: [{ name: "Impact Dashboard Team" }],
+  creator: "Impact Dashboard",
+  publisher: "Impact Dashboard",
   metadataBase: new URL('https://impact-dash.vercel.app'),
   openGraph: {
-    title: "FrontForumFocus Impact Dashboard",
-    description: "Track and visualize the impact of AI education programs for marginalized youth in Kenya",
+    title: "Impact Dashboard - Multi-Profile Analytics Platform",
+    description: "Flexible impact measurement dashboard for any industry",
     type: "website",
     locale: "en_US",
-    siteName: "FrontForumFocus Impact Dashboard",
+    siteName: "Impact Dashboard",
   },
   twitter: {
     card: "summary_large_image",
-    title: "FrontForumFocus Impact Dashboard",
-    description: "AI education impact tracking for youth in Kenya",
+    title: "Impact Dashboard",
+    description: "Multi-profile impact measurement platform",
   },
   robots: {
     index: true,
@@ -35,10 +36,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className="antialiased">
-        {children}
-      </body>
-    </html>
+    // <ClerkProvider> // Temporarily disabled for demo
+      <html lang="en">
+        <body className="antialiased">
+          {children}
+        </body>
+      </html>
+    // </ClerkProvider>
   );
 }
