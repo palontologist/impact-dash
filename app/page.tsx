@@ -1,12 +1,15 @@
 "use client"
 
 import { useRouter } from "next/navigation"
+import { useUser } from "@clerk/nextjs"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { GraduationCap, Heart, UtensilsCrossed, BarChart3, Shield, TrendingUp } from "lucide-react"
+import { PricingPackages } from "@/components/pricing-packages"
 
 export default function LandingPage() {
   const router = useRouter()
+  const { isSignedIn } = useUser()
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
@@ -16,8 +19,8 @@ export default function LandingPage() {
             <BarChart3 className="h-6 w-6 text-blue-600" />
             <span className="text-xl font-bold">Impact Dashboard</span>
           </div>
-          <Button onClick={() => router.push("/dashboard")}>
-            Get Started
+          <Button onClick={() => router.push(isSignedIn ? "/dashboard" : "/onboarding")}>
+            {isSignedIn ? "Dashboard" : "Get Started"}
           </Button>
         </div>
       </nav>
@@ -32,8 +35,12 @@ export default function LandingPage() {
             No spreadsheets, no jargon. Just live impact snapshots you can share with boards, donors, and investors.
           </p>
           <div className="flex gap-4 justify-center">
-            <Button size="lg" onClick={() => router.push("/onboarding")} className="bg-blue-600 hover:bg-blue-700">
-              Launch your impact dashboard
+            <Button 
+              size="lg" 
+              onClick={() => router.push(isSignedIn ? "/dashboard" : "/onboarding")} 
+              className="bg-blue-600 hover:bg-blue-700"
+            >
+              {isSignedIn ? "Go to Dashboard" : "Launch your impact dashboard"}
             </Button>
             <Button size="lg" variant="outline">
               Learn More
@@ -129,6 +136,9 @@ export default function LandingPage() {
           </div>
         </section>
 
+        {/* Pricing Section */}
+        <PricingPackages />
+
         {/* CTA Section */}
         <section className="py-20 text-center">
           <Card className="max-w-2xl mx-auto">
@@ -139,7 +149,7 @@ export default function LandingPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Button size="lg" onClick={() => router.push("/dashboard")}>
+              <Button size="lg" onClick={() => router.push("/onboarding")}>
                 Start Free
               </Button>
             </CardContent>

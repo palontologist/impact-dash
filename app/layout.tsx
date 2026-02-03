@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
-// import { ClerkProvider } from "@clerk/nextjs"; // Temporarily disabled for demo
+import { ClerkProvider, SignedIn, SignedOut, SignInButton, SignUpButton, UserButton } from "@clerk/nextjs";
 import "./globals.css";
-
-// Fonts temporarily removed due to network restrictions
 
 export const metadata: Metadata = {
   title: "Impact Dashboard - Multi-Profile Analytics Platform",
@@ -36,12 +34,29 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    // <ClerkProvider> // Temporarily disabled for demo
+    <ClerkProvider>
       <html lang="en">
         <body className="antialiased">
+          <header className="flex justify-end items-center p-4 gap-4 h-16 border-b">
+            <SignedOut>
+              <SignInButton mode="modal">
+                <button className="text-sm font-medium hover:text-blue-600 transition-colors">
+                  Sign In
+                </button>
+              </SignInButton>
+              <SignUpButton mode="modal">
+                <button className="bg-blue-600 text-white rounded-full font-medium text-sm h-10 px-5 hover:bg-blue-700 transition-colors">
+                  Sign Up
+                </button>
+              </SignUpButton>
+            </SignedOut>
+            <SignedIn>
+              <UserButton afterSignOutUrl="/" />
+            </SignedIn>
+          </header>
           {children}
         </body>
       </html>
-    // </ClerkProvider>
+    </ClerkProvider>
   );
 }
