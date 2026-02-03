@@ -26,15 +26,14 @@ export default function LandingPage() {
         {/* Hero Section */}
         <section className="py-20 text-center">
           <h1 className="text-5xl font-bold mb-6 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-            Measure Impact, Drive Change
+            Impact reporting at the speed of your work
           </h1>
           <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-            A flexible impact measurement platform that adapts to your industry.
-            Track metrics that matter, from education to food security.
+            No spreadsheets, no jargon. Just live impact snapshots you can share with boards, donors, and investors.
           </p>
           <div className="flex gap-4 justify-center">
-            <Button size="lg" onClick={() => router.push("/dashboard")}>
-              Start Measuring Impact
+            <Button size="lg" onClick={() => router.push("/onboarding")} className="bg-blue-600 hover:bg-blue-700">
+              Launch your impact dashboard
             </Button>
             <Button size="lg" variant="outline">
               Learn More

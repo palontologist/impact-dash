@@ -25,21 +25,39 @@ const USER_TYPES = [
 const PROFILES = [
   { 
     value: "education", 
-    label: "Education & Youth Upskilling", 
+    label: "Education", 
     icon: GraduationCap,
-    description: "Track AI literacy, enrollment, and employment outcomes"
+    description: "Track learning outcomes, platform innovation, environmental footprint, climate education, and talent development"
+  },
+  { 
+    value: "finance", 
+    label: "Finance", 
+    icon: Building2,
+    description: "Monitor green loans, ESG-linked assets, operational emissions, financial inclusion, and governance"
+  },
+  { 
+    value: "real_estate", 
+    label: "Real Estate / Energy", 
+    icon: Building2,
+    description: "Track energy & emissions intensity, water use, jobs & training, community investment, sustainability satisfaction"
   },
   { 
     value: "human_constitution", 
-    label: "Human Constitution & Wellbeing", 
+    label: "Human Constitution", 
     icon: Heart,
-    description: "Measure dignity, maturity, mental health, and social indicators"
+    description: "Measure dignity, maturity, wellbeing, mental health, relationships, and team effectiveness"
   },
   { 
     value: "e2g_food", 
     label: "E2G Food Distribution", 
     icon: UtensilsCrossed,
-    description: "Monitor food security, nutrition, and sustainable farming"
+    description: "Monitor food bars delivered, meals provided, communities served, vulnerable individuals, and regional distribution"
+  },
+  { 
+    value: "custom", 
+    label: "Custom", 
+    icon: UserCog,
+    description: "Build your own custom metric set tailored to your specific needs"
   },
 ]
 
