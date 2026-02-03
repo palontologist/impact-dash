@@ -73,6 +73,7 @@ const REASONS = [
 export function OnboardingWizard() {
   const router = useRouter()
   const [step, setStep] = useState(1)
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const [data, setData] = useState<OnboardingData>({
     userType: "",
     profile: "",
@@ -90,18 +91,36 @@ export function OnboardingWizard() {
   }
 
   const handleComplete = async () => {
+    if (isSubmitting) return
+    
+    setIsSubmitting(true)
+    
     try {
+      // Store profile selection in localStorage for immediate use
+      localStorage.setItem("selectedProfile", data.profile)
+      localStorage.setItem("selectedPackage", localStorage.getItem("selectedPackage") || "pilot-seed")
+      
       const response = await fetch("/api/onboarding", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       })
       
+      const result = await response.json()
+      
       if (response.ok) {
+        // Redirect to dashboard
         router.push("/dashboard")
+        router.refresh()
+      } else {
+        console.error("Onboarding failed:", result.error)
+        alert(`Setup failed: ${result.error || "Please try again"}`)
+        setIsSubmitting(false)
       }
     } catch (error) {
       console.error("Onboarding error:", error)
+      alert("Setup failed. Please try again.")
+      setIsSubmitting(false)
     }
   }
 
@@ -246,10 +265,10 @@ export function OnboardingWizard() {
             ) : (
               <Button
                 onClick={handleComplete}
-                disabled={data.reason.length === 0}
+                disabled={data.reason.length === 0 || isSubmitting}
                 className="ml-auto"
               >
-                Complete Setup
+                {isSubmitting ? "Setting up..." : "Complete Setup"}
               </Button>
             )}
           </div>
