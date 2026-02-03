@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { auth } from "@clerk/nextjs/server"
 import { db } from "@/lib/db"
 import { userProfiles } from "@/lib/schema"
+import { eq } from "drizzle-orm"
 
 export async function POST(req: NextRequest) {
   try {
@@ -14,8 +15,14 @@ export async function POST(req: NextRequest) {
     const body = await req.json()
     const { userType, profile, industry, reason } = body
 
-    // Create or update user profile
-    await db.insert(userProfiles).values({
+    // Check if user already has a profile
+    const existingProfile = await db
+      .select()
+      .from(userProfiles)
+      .where(eq(userProfiles.clerkUserId, userId))
+      .limit(1)
+
+    const profileData = {
       clerkUserId: userId,
       email: "", // Will be populated from Clerk
       userType,
@@ -23,11 +30,24 @@ export async function POST(req: NextRequest) {
       industry,
       reason: JSON.stringify(reason),
       onboardingCompleted: true,
-    })
+    }
+
+    if (existingProfile.length > 0) {
+      // Update existing profile
+      await db
+        .update(userProfiles)
+        .set(profileData)
+        .where(eq(userProfiles.clerkUserId, userId))
+    } else {
+      // Create new profile
+      await db.insert(userProfiles).values(profileData)
+    }
 
     return NextResponse.json({ success: true })
   } catch (error) {
     console.error("Onboarding error:", error)
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+    return NextResponse.json({ 
+      error: error instanceof Error ? error.message : "Internal server error" 
+    }, { status: 500 })
   }
 }
