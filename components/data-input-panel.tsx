@@ -186,44 +186,6 @@ export function DataInputPanel() {
 		}
 	}
 
-	async function handleSubmitMetric() {
-		setMetricMessage(null)
-		try {
-			if (!selectedMetricId || !metricValue || !metricDate) {
-				throw new Error("Please fill in all required fields")
-			}
-
-			setSubmittingMetric(true)
-			const res = await fetch("/api/data/manual-input", {
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({
-					metricId: selectedMetricId,
-					value: metricValue,
-					date: metricDate,
-					notes: metricNotes || undefined,
-				}),
-			})
-
-			if (!res.ok) {
-				const error = await res.json()
-				throw new Error(error.error || "Failed to submit metric")
-			}
-
-			// Reset form
-			setSelectedMetricId("")
-			setMetricValue("")
-			setMetricDate(new Date().toISOString().split('T')[0])
-			setMetricNotes("")
-			setMetricMessage("✓ Metric data saved successfully!")
-		} catch (e: unknown) {
-			const message = e instanceof Error ? e.message : "Error"
-			setMetricMessage(`✗ ${message}`)
-		} finally {
-			setSubmittingMetric(false)
-		}
-	}
-
 	async function handleFileSubmit(e: React.FormEvent) {
 		e.preventDefault()
 		if (!selectedFile) return
