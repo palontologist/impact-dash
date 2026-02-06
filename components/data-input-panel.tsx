@@ -20,6 +20,7 @@ interface AvailableMetric {
 	category: string
 	unit: string
 	dataType: string
+	description?: string
 }
 
 interface ProfileTab {
