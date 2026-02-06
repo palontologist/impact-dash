@@ -25,6 +25,8 @@ import {
 import { cn } from "@/lib/utils"
 import { MetricTile, MetricTileGrid } from "@/components/metric-tile"
 import { StoryPanel } from "@/components/story-panel"
+import { DataInputPanel } from "@/components/data-input-panel"
+import { FormalReportGenerator } from "@/components/formal-report-generator"
 
 type ProfileType = "education" | "finance" | "real_estate" | "human_constitution" | "e2g_food" | "custom"
 
@@ -559,27 +561,11 @@ export function DashboardLayout() {
           )}
 
           {activeView === "reports" && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Reports</CardTitle>
-                <CardDescription>Generate and view your impact reports</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">Report generation features coming soon...</p>
-              </CardContent>
-            </Card>
+            <FormalReportGenerator />
           )}
 
           {activeView === "data" && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Data Input</CardTitle>
-                <CardDescription>Update your impact metrics</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">Data input features coming soon...</p>
-              </CardContent>
-            </Card>
+            <DataInputPanel />
           )}
 
           {activeView === "export" && (

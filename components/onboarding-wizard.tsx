@@ -8,12 +8,16 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
 import { GraduationCap, Heart, UtensilsCrossed, Building2, UserCog, Scale } from "lucide-react"
+import { CustomMetricSelector } from "@/components/custom-metric-selector"
+import { DataInputConfig } from "@/components/data-input-config"
 
 interface OnboardingData {
   userType: string
   profile: string
   industry: string
   reason: string[]
+  customMetrics?: string[]
+  dataInputMethod?: string
 }
 
 const USER_TYPES = [
@@ -79,7 +83,13 @@ export function OnboardingWizard() {
     profile: "",
     industry: "",
     reason: [],
+    customMetrics: [],
+    dataInputMethod: "both",
   })
+
+  // Calculate total steps based on profile selection
+  const totalSteps = data.profile === "custom" ? 6 : 4
+  const progressSteps = Array.from({ length: totalSteps }, (_, i) => i + 1)
 
   const handleReasonToggle = (reason: string) => {
     setData(prev => ({
@@ -88,6 +98,32 @@ export function OnboardingWizard() {
         ? prev.reason.filter(r => r !== reason)
         : [...prev.reason, reason]
     }))
+  }
+
+  const handleNext = () => {
+    // Skip to step 5 if profile is custom and we're on step 2
+    if (step === 2 && data.profile === "custom") {
+      setStep(5) // Jump to custom metric selection
+    } else if (step === 5 && data.profile === "custom") {
+      setStep(6) // Move to data input config
+    } else if (step === 6 && data.profile === "custom") {
+      setStep(3) // Continue to industry selection
+    } else {
+      setStep(step + 1)
+    }
+  }
+
+  const handleBack = () => {
+    // Handle back navigation for custom profile
+    if (step === 3 && data.profile === "custom") {
+      setStep(6) // Go back to data input config
+    } else if (step === 6 && data.profile === "custom") {
+      setStep(5) // Go back to custom metrics
+    } else if (step === 5 && data.profile === "custom") {
+      setStep(2) // Go back to profile selection
+    } else {
+      setStep(step - 1)
+    }
   }
 
   const handleComplete = async () => {
@@ -99,6 +135,14 @@ export function OnboardingWizard() {
       // Store profile selection in localStorage for immediate use
       localStorage.setItem("selectedProfile", data.profile)
       localStorage.setItem("selectedPackage", localStorage.getItem("selectedPackage") || "pilot-seed")
+      
+      // Store custom metrics if custom profile is selected
+      if (data.profile === "custom" && data.customMetrics) {
+        localStorage.setItem("customMetrics", JSON.stringify(data.customMetrics))
+      }
+      if (data.dataInputMethod) {
+        localStorage.setItem("dataInputMethod", data.dataInputMethod)
+      }
       
       const response = await fetch("/api/onboarding", {
         method: "POST",
@@ -133,7 +177,7 @@ export function OnboardingWizard() {
             Let&apos;s set up your personalized impact measurement experience
           </CardDescription>
           <div className="flex gap-2 mt-4">
-            {[1, 2, 3, 4].map((s) => (
+            {progressSteps.map((s) => (
               <div
                 key={s}
                 className={`h-2 flex-1 rounded-full ${
@@ -244,19 +288,41 @@ export function OnboardingWizard() {
             </div>
           )}
 
+          {step === 5 && data.profile === "custom" && (
+            <div className="space-y-4">
+              <Label className="text-lg font-semibold">Select Your Custom Metrics</Label>
+              <CustomMetricSelector
+                selectedMetrics={data.customMetrics || []}
+                onMetricsChange={(metrics) => setData({ ...data, customMetrics: metrics })}
+              />
+            </div>
+          )}
+
+          {step === 6 && data.profile === "custom" && (
+            <div className="space-y-4">
+              <Label className="text-lg font-semibold">Configure Data Input</Label>
+              <DataInputConfig
+                selectedMethod={data.dataInputMethod || "both"}
+                onMethodChange={(method) => setData({ ...data, dataInputMethod: method })}
+              />
+            </div>
+          )}
+
           <div className="flex justify-between pt-4">
             {step > 1 && (
-              <Button variant="outline" onClick={() => setStep(step - 1)}>
+              <Button variant="outline" onClick={handleBack}>
                 Back
               </Button>
             )}
-            {step < 4 ? (
+            {step < totalSteps ? (
               <Button
-                onClick={() => setStep(step + 1)}
+                onClick={handleNext}
                 disabled={
                   (step === 1 && !data.userType) ||
                   (step === 2 && !data.profile) ||
-                  (step === 3 && !data.industry)
+                  (step === 3 && !data.industry) ||
+                  (step === 5 && data.profile === "custom" && (!data.customMetrics || data.customMetrics.length === 0)) ||
+                  (step === 6 && data.profile === "custom" && !data.dataInputMethod)
                 }
                 className="ml-auto"
               >

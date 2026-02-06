@@ -242,9 +242,11 @@ export const userProfiles = sqliteTable("user_profiles", {
   email: text("email").notNull(),
   name: text("name"),
   userType: text("user_type").notNull(), // 'consultant', 'enterprise', 'regulator'
-  selectedProfile: text("selected_profile"), // 'education', 'human_constitution', 'e2g_food'
+  selectedProfile: text("selected_profile"), // 'education', 'human_constitution', 'e2g_food', 'custom'
   industry: text("industry"),
   reason: text("reason"), // why using dashboard: 'funding', 'regulation', 'impact_measurement', etc.
+  customMetrics: text("custom_metrics"), // JSON array of selected metric IDs for custom profile
+  dataInputMethod: text("data_input_method"), // 'csv', 'manual', 'both'
   onboardingCompleted: integer("onboarding_completed", { mode: "boolean" }).default(false),
   createdAt: integer("created_at", { mode: "timestamp" })
     .default(sql`(strftime('%s','now'))`)
@@ -378,7 +380,65 @@ export const e2gFoodImpactStories = sqliteTable("e2g_food_impact_stories", {
     .notNull(),
 })
 
+// Available metrics definition for custom selection
+export const availableMetrics = sqliteTable("available_metrics", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  metricId: text("metric_id").notNull().unique(), // e.g., 'enrollment', 'completion', 'dignity_index'
+  metricName: text("metric_name").notNull(),
+  category: text("category").notNull(), // 'education', 'human_constitution', 'food', 'environmental', 'social', 'governance'
+  description: text("description"),
+  unit: text("unit"), // 'count', 'percentage', 'score', 'currency'
+  dataType: text("data_type").notNull(), // 'number', 'percentage', 'text'
+  isAvailableForCustom: integer("is_available_for_custom", { mode: "boolean" }).default(true),
+  sortOrder: integer("sort_order").default(0),
+  createdAt: integer("created_at", { mode: "timestamp" })
+    .default(sql`(strftime('%s','now'))`)
+    .notNull(),
+})
+
+// CSV data uploads
+export const dataUploads = sqliteTable("data_uploads", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  userId: integer("user_id").notNull().references(() => userProfiles.id, { onDelete: "cascade" }),
+  fileName: text("file_name").notNull(),
+  fileSize: integer("file_size"),
+  fileUrl: text("file_url"),
+  fileHash: text("file_hash"), // MD5 or SHA256 hash for deduplication
+  uploadStatus: text("upload_status").default("processing"), // 'processing', 'completed', 'failed'
+  rowsProcessed: integer("rows_processed").default(0),
+  rowsFailed: integer("rows_failed").default(0),
+  errorLog: text("error_log"), // JSON array of errors
+  metricsMapped: text("metrics_mapped"), // JSON object mapping CSV columns to metric IDs
+  uploadedAt: integer("uploaded_at", { mode: "timestamp" })
+    .default(sql`(strftime('%s','now'))`)
+    .notNull(),
+})
+
+// Manual data entries for custom metrics
+export const customMetricData = sqliteTable("custom_metric_data", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  userId: integer("user_id").notNull().references(() => userProfiles.id, { onDelete: "cascade" }),
+  metricId: text("metric_id").notNull(),
+  value: text("value").notNull(), // Stored as text, parsed based on dataType
+  date: integer("date", { mode: "timestamp" }).notNull(),
+  notes: text("notes"),
+  source: text("source").default("manual"), // 'manual', 'csv', 'api'
+  uploadId: integer("upload_id").references(() => dataUploads.id, { onDelete: "set null" }),
+  createdAt: integer("created_at", { mode: "timestamp" })
+    .default(sql`(strftime('%s','now'))`)
+    .notNull(),
+  updatedAt: integer("updated_at", { mode: "timestamp" })
+    .default(sql`(strftime('%s','now'))`)
+    .notNull(),
+})
+
 // Type exports
+export type InsertAvailableMetric = typeof availableMetrics.$inferInsert
+export type SelectAvailableMetric = typeof availableMetrics.$inferSelect
+export type InsertDataUpload = typeof dataUploads.$inferInsert
+export type SelectDataUpload = typeof dataUploads.$inferSelect
+export type InsertCustomMetricData = typeof customMetricData.$inferInsert
+export type SelectCustomMetricData = typeof customMetricData.$inferSelect
 export type InsertUserProfile = typeof userProfiles.$inferInsert
 export type SelectUserProfile = typeof userProfiles.$inferSelect
 export type InsertHumanConstitutionMetric = typeof humanConstitutionMetrics.$inferInsert

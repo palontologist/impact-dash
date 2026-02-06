@@ -13,7 +13,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json()
-    const { userType, profile, industry, reason } = body
+    const { userType, profile, industry, reason, customMetrics, dataInputMethod } = body
 
     // Check if user already has a profile
     const existingProfile = await db
@@ -29,6 +29,8 @@ export async function POST(req: NextRequest) {
       selectedProfile: profile,
       industry,
       reason: JSON.stringify(reason),
+      customMetrics: customMetrics ? JSON.stringify(customMetrics) : null,
+      dataInputMethod: dataInputMethod || null,
       onboardingCompleted: true,
     }
 
