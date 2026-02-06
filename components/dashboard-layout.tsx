@@ -12,7 +12,8 @@ import {
   Settings,
   Home,
   LogOut,
-  ChevronDown
+  ChevronDown,
+  User
 } from "lucide-react"
 import {
   DropdownMenu,
@@ -33,6 +34,7 @@ type ProfileType = "education" | "finance" | "real_estate" | "human_constitution
 const SIDEBAR_ITEMS = [
   { icon: Home, label: "Overview", value: "overview" },
   { icon: FileText, label: "Reports", value: "reports" },
+  { icon: User, label: "Profile", value: "profile" },
   { icon: Database, label: "Data Input", value: "data" },
   { icon: Download, label: "Export", value: "export" },
   { icon: Settings, label: "Settings", value: "settings" },
@@ -80,7 +82,13 @@ export function DashboardLayout() {
               return (
                 <li key={item.value}>
                   <button
-                    onClick={() => setActiveView(item.value)}
+                    onClick={() => {
+                      if (item.value === "profile") {
+                        router.push("/dashboard/profile")
+                      } else {
+                        setActiveView(item.value)
+                      }
+                    }}
                     className={cn(
                       "w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors",
                       activeView === item.value

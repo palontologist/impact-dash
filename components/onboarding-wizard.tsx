@@ -5,17 +5,27 @@ import { useRouter } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
+import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
-import { GraduationCap, Heart, UtensilsCrossed, Building2, UserCog, Scale } from "lucide-react"
+import { GraduationCap, Heart, UtensilsCrossed, Building2, UserCog, Scale, Target, Plus, X } from "lucide-react"
 import { CustomMetricSelector } from "@/components/custom-metric-selector"
 import { DataInputConfig } from "@/components/data-input-config"
+
+interface Goal {
+  id: string
+  title: string
+  target: string
+  deadline: string
+  metricType?: string
+}
 
 interface OnboardingData {
   userType: string
   profile: string
   industry: string
   reason: string[]
+  goals: Goal[]
   customMetrics?: string[]
   dataInputMethod?: string
 }
@@ -83,12 +93,14 @@ export function OnboardingWizard() {
     profile: "",
     industry: "",
     reason: [],
+    goals: [],
     customMetrics: [],
     dataInputMethod: "both",
   })
+  const [newGoal, setNewGoal] = useState({ title: "", target: "", deadline: "", metricType: "" })
 
   // Calculate total steps based on profile selection
-  const totalSteps = data.profile === "custom" ? 6 : 4
+  const totalSteps = data.profile === "custom" ? 7 : 5
   const progressSteps = Array.from({ length: totalSteps }, (_, i) => i + 1)
 
   const handleReasonToggle = (reason: string) => {
@@ -100,13 +112,38 @@ export function OnboardingWizard() {
     }))
   }
 
+  const addGoal = () => {
+    if (newGoal.title && newGoal.target) {
+      const goal: Goal = {
+        id: Date.now().toString(),
+        title: newGoal.title,
+        target: newGoal.target,
+        deadline: newGoal.deadline || new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        metricType: newGoal.metricType || 'custom',
+      }
+      setData(prev => ({
+        ...prev,
+        goals: [...prev.goals, goal]
+      }))
+      setNewGoal({ title: "", target: "", deadline: "", metricType: "" })
+    }
+  }
+
+  const removeGoal = (goalId: string) => {
+    setData(prev => ({
+      ...prev,
+      goals: prev.goals.filter(g => g.id !== goalId)
+    }))
+  }
+
   const handleNext = () => {
-    // Skip to step 5 if profile is custom and we're on step 2
+    // For custom profile: user type (1) -> profile (2) -> custom metrics (6) -> data config (7) -> industry (3) -> reason (4) -> goals (5) -> complete
+    // For fixed profiles: user type (1) -> profile (2) -> industry (3) -> reason (4) -> goals (5) -> complete
     if (step === 2 && data.profile === "custom") {
-      setStep(5) // Jump to custom metric selection
-    } else if (step === 5 && data.profile === "custom") {
-      setStep(6) // Move to data input config
+      setStep(6) // Jump to custom metric selection (renumbered from 5)
     } else if (step === 6 && data.profile === "custom") {
+      setStep(7) // Move to data input config (renumbered from 6)
+    } else if (step === 7 && data.profile === "custom") {
       setStep(3) // Continue to industry selection
     } else {
       setStep(step + 1)
@@ -116,10 +153,10 @@ export function OnboardingWizard() {
   const handleBack = () => {
     // Handle back navigation for custom profile
     if (step === 3 && data.profile === "custom") {
-      setStep(6) // Go back to data input config
+      setStep(7) // Go back to data input config
+    } else if (step === 7 && data.profile === "custom") {
+      setStep(6) // Go back to custom metrics
     } else if (step === 6 && data.profile === "custom") {
-      setStep(5) // Go back to custom metrics
-    } else if (step === 5 && data.profile === "custom") {
       setStep(2) // Go back to profile selection
     } else {
       setStep(step - 1)
@@ -288,7 +325,96 @@ export function OnboardingWizard() {
             </div>
           )}
 
-          {step === 5 && data.profile === "custom" && (
+          {step === 5 && data.profile !== "custom" && (
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 mb-4">
+                <Target className="w-6 h-6 text-blue-600" />
+                <Label className="text-lg font-semibold">Set Your Sustainability Goals</Label>
+              </div>
+              <p className="text-sm text-muted-foreground mb-4">
+                Define measurable goals to track your progress. You can add more goals later from your dashboard.
+              </p>
+              
+              {/* Add new goal form */}
+              <Card className="p-4 bg-muted/50">
+                <div className="grid gap-3">
+                  <div>
+                    <Label htmlFor="goal-title">Goal Title *</Label>
+                    <Input
+                      id="goal-title"
+                      placeholder="e.g., Reduce carbon emissions by 25%"
+                      value={newGoal.title}
+                      onChange={(e) => setNewGoal({...newGoal, title: e.target.value})}
+                    />
+                  </div>
+                  <div className="grid md:grid-cols-2 gap-3">
+                    <div>
+                      <Label htmlFor="goal-target">Target Value *</Label>
+                      <Input
+                        id="goal-target"
+                        placeholder="e.g., 25% reduction"
+                        value={newGoal.target}
+                        onChange={(e) => setNewGoal({...newGoal, target: e.target.value})}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="goal-deadline">Target Date</Label>
+                      <Input
+                        id="goal-deadline"
+                        type="date"
+                        value={newGoal.deadline}
+                        onChange={(e) => setNewGoal({...newGoal, deadline: e.target.value})}
+                      />
+                    </div>
+                  </div>
+                  <Button
+                    type="button"
+                    onClick={addGoal}
+                    disabled={!newGoal.title || !newGoal.target}
+                    className="w-full"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Add Goal
+                  </Button>
+                </div>
+              </Card>
+
+              {/* Display added goals */}
+              {data.goals.length > 0 && (
+                <div className="space-y-2">
+                  <Label className="text-sm font-semibold">Your Goals ({data.goals.length})</Label>
+                  {data.goals.map((goal) => (
+                    <Card key={goal.id} className="p-3">
+                      <div className="flex justify-between items-start">
+                        <div className="flex-1">
+                          <h4 className="font-semibold text-sm">{goal.title}</h4>
+                          <p className="text-sm text-muted-foreground">
+                            Target: {goal.target} • Deadline: {goal.deadline ? new Date(goal.deadline).toLocaleDateString() : 'Not set'}
+                          </p>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => removeGoal(goal.id)}
+                          className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                        >
+                          <X className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </Card>
+                  ))}
+                </div>
+              )}
+
+              {data.goals.length === 0 && (
+                <p className="text-sm text-center text-muted-foreground py-4">
+                  No goals added yet. Add at least one goal to continue, or skip this step.
+                </p>
+              )}
+            </div>
+          )}
+
+          {step === 6 && data.profile === "custom" && (
             <div className="space-y-4">
               <Label className="text-lg font-semibold">Select Your Custom Metrics</Label>
               <CustomMetricSelector
@@ -298,13 +424,103 @@ export function OnboardingWizard() {
             </div>
           )}
 
-          {step === 6 && data.profile === "custom" && (
+          {step === 7 && data.profile === "custom" && (
             <div className="space-y-4">
               <Label className="text-lg font-semibold">Configure Data Input</Label>
               <DataInputConfig
                 selectedMethod={data.dataInputMethod || "both"}
                 onMethodChange={(method) => setData({ ...data, dataInputMethod: method })}
               />
+            </div>
+          )}
+
+          {/* Goals step for custom profile */}
+          {step === 5 && data.profile === "custom" && (
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 mb-4">
+                <Target className="w-6 h-6 text-blue-600" />
+                <Label className="text-lg font-semibold">Set Your Sustainability Goals</Label>
+              </div>
+              <p className="text-sm text-muted-foreground mb-4">
+                Define measurable goals aligned with your custom metrics. You can add more goals later from your dashboard.
+              </p>
+              
+              {/* Add new goal form */}
+              <Card className="p-4 bg-muted/50">
+                <div className="grid gap-3">
+                  <div>
+                    <Label htmlFor="goal-title-custom">Goal Title *</Label>
+                    <Input
+                      id="goal-title-custom"
+                      placeholder="e.g., Increase enrollment by 50%"
+                      value={newGoal.title}
+                      onChange={(e) => setNewGoal({...newGoal, title: e.target.value})}
+                    />
+                  </div>
+                  <div className="grid md:grid-cols-2 gap-3">
+                    <div>
+                      <Label htmlFor="goal-target-custom">Target Value *</Label>
+                      <Input
+                        id="goal-target-custom"
+                        placeholder="e.g., 500 students"
+                        value={newGoal.target}
+                        onChange={(e) => setNewGoal({...newGoal, target: e.target.value})}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="goal-deadline-custom">Target Date</Label>
+                      <Input
+                        id="goal-deadline-custom"
+                        type="date"
+                        value={newGoal.deadline}
+                        onChange={(e) => setNewGoal({...newGoal, deadline: e.target.value})}
+                      />
+                    </div>
+                  </div>
+                  <Button
+                    type="button"
+                    onClick={addGoal}
+                    disabled={!newGoal.title || !newGoal.target}
+                    className="w-full"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Add Goal
+                  </Button>
+                </div>
+              </Card>
+
+              {/* Display added goals */}
+              {data.goals.length > 0 && (
+                <div className="space-y-2">
+                  <Label className="text-sm font-semibold">Your Goals ({data.goals.length})</Label>
+                  {data.goals.map((goal) => (
+                    <Card key={goal.id} className="p-3">
+                      <div className="flex justify-between items-start">
+                        <div className="flex-1">
+                          <h4 className="font-semibold text-sm">{goal.title}</h4>
+                          <p className="text-sm text-muted-foreground">
+                            Target: {goal.target} • Deadline: {goal.deadline ? new Date(goal.deadline).toLocaleDateString() : 'Not set'}
+                          </p>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => removeGoal(goal.id)}
+                          className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                        >
+                          <X className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </Card>
+                  ))}
+                </div>
+              )}
+
+              {data.goals.length === 0 && (
+                <p className="text-sm text-center text-muted-foreground py-4">
+                  No goals added yet. Add at least one goal to continue, or skip this step.
+                </p>
+              )}
             </div>
           )}
 
@@ -321,8 +537,9 @@ export function OnboardingWizard() {
                   (step === 1 && !data.userType) ||
                   (step === 2 && !data.profile) ||
                   (step === 3 && !data.industry) ||
-                  (step === 5 && data.profile === "custom" && (!data.customMetrics || data.customMetrics.length === 0)) ||
-                  (step === 6 && data.profile === "custom" && !data.dataInputMethod)
+                  (step === 4 && data.reason.length === 0) ||
+                  (step === 6 && data.profile === "custom" && (!data.customMetrics || data.customMetrics.length === 0)) ||
+                  (step === 7 && data.profile === "custom" && !data.dataInputMethod)
                 }
                 className="ml-auto"
               >
@@ -331,7 +548,7 @@ export function OnboardingWizard() {
             ) : (
               <Button
                 onClick={handleComplete}
-                disabled={data.reason.length === 0 || isSubmitting}
+                disabled={isSubmitting}
                 className="ml-auto"
               >
                 {isSubmitting ? "Setting up..." : "Complete Setup"}

@@ -76,21 +76,60 @@ export class FormalReportGenerator {
         throw new Error("User profile not found")
       }
 
+      // Parse profile extensions
+      let goals: any[] = []
+      let frameworks: string[] = []
+      let governanceInfo = ""
+      
+      if (userProfile.goals) {
+        try {
+          goals = JSON.parse(userProfile.goals)
+        } catch (e) {
+          console.error("Error parsing goals:", e)
+        }
+      }
+      
+      if (userProfile.reportingFrameworks) {
+        try {
+          frameworks = JSON.parse(userProfile.reportingFrameworks)
+        } catch (e) {
+          console.error("Error parsing frameworks:", e)
+        }
+      }
+      
+      governanceInfo = userProfile.governanceStructure || ""
+
       // Determine focus areas based on profile
       const focusAreas = request.focusAreas || this.getDefaultFocusAreas(request.profileType)
 
-      // Prepare context for AI generation
+      // Prepare context for AI generation with enhanced profile data
       const reportContext = {
+        // Organization info
         organizationName: userProfile.name || "Organization",
+        companyDescription: userProfile.companyDescription || "",
+        companySize: userProfile.companySize || "Not specified",
+        website: userProfile.website || "",
+        headquarters: userProfile.headquarters || "",
+        foundedYear: userProfile.foundedYear || null,
+        
+        // Profile and reporting
         profileType: request.profileType,
         reportPeriod: request.reportPeriod,
         timeframe: `${request.startDate.toLocaleDateString()} to ${request.endDate.toLocaleDateString()}`,
         industry: userProfile.industry || "Impact",
         userType: userProfile.userType,
         focusAreas,
+        
+        // Metrics data
         metricsData: userData.metrics,
         previousPeriodData: userData.previousPeriodMetrics,
         totalMetrics: userData.metrics.length,
+        
+        // Goals and governance
+        sustainabilityGoals: goals,
+        governanceStructure: governanceInfo,
+        sustainabilityOfficer: userProfile.sustainabilityOfficer || "Not specified",
+        reportingFrameworks: frameworks,
       }
 
       // Generate comprehensive report using AI
@@ -304,6 +343,39 @@ Respond with a properly formatted JSON object matching the FormalReportSections 
     const orgName = context.organizationName as string || "Our Organization"
     const profileType = context.profileType as string || "impact"
     const metricsData = context.metricsData as Array<{ metricName: string; value: string; category: string; unit: string }> || []
+    const userGoals = context.sustainabilityGoals as Array<{ title: string; target: string; deadline: string; status?: string }> || []
+    const governance = context.governanceStructure as string || ""
+    const officer = context.sustainabilityOfficer as string || ""
+    const frameworks = context.reportingFrameworks as string[] || []
+
+    // Build goals progress from user's actual goals
+    const goalsProgress = userGoals.length > 0 
+      ? userGoals.slice(0, 5).map(g => ({
+          goal: g.title,
+          target: g.target,
+          current: g.status === 'completed' ? 'Achieved' : 'In Progress',
+          status: (g.status === 'completed' ? 'exceeded' : 'on-track') as any,
+        }))
+      : [
+          {
+            goal: `Advance ${profileType} impact`,
+            target: "25% improvement by year-end",
+            current: "18% achieved",
+            status: "on-track" as any
+          },
+          {
+            goal: "Enhance stakeholder engagement",
+            target: "90% satisfaction score",
+            current: "87% achieved",
+            status: "on-track" as any
+          },
+          {
+            goal: "Improve operational efficiency",
+            target: "15% cost reduction",
+            current: "12% achieved",
+            status: "on-track" as any
+          }
+        ]
 
     return {
       executiveSummary: `At ${orgName}, we are guided by a commitment to responsible growth and sustainable impact across all dimensions of our operations. This ${context.reportPeriod} report demonstrates our continued progress in ${profileType} sector leadership, highlighting both operational excellence and meaningful stakeholder value creation.
@@ -325,26 +397,7 @@ By focusing on systematic measurement, stakeholder collaboration, and continuous
 
       sustainabilityGoals: {
         overview: `We have established ambitious yet achievable goals across our core impact areas, with specific targets and accountability mechanisms. These goals reflect both stakeholder expectations and our own commitment to driving meaningful change.`,
-        progress: [
-          {
-            goal: `Advance ${profileType} impact`,
-            target: "25% improvement by year-end",
-            current: "18% achieved",
-            status: "on-track"
-          },
-          {
-            goal: "Enhance stakeholder engagement",
-            target: "90% satisfaction score",
-            current: "87% achieved",
-            status: "on-track"
-          },
-          {
-            goal: "Improve operational efficiency",
-            target: "15% cost reduction",
-            current: "12% achieved",
-            status: "on-track"
-          }
-        ]
+        progress: goalsProgress
       },
 
       strategicInitiatives: [
@@ -372,9 +425,9 @@ By focusing on systematic measurement, stakeholder collaboration, and continuous
         environment: `We recognize our responsibility to minimize environmental impact and contribute to sustainability. Through careful resource management, process optimization, and strategic partnerships, we work to reduce our footprint while advancing environmental stewardship.`
       },
 
-      governanceAndOversight: `Strong governance provides the foundation for accountability and strategic execution. Our board provides oversight on all sustainability and impact matters, with regular reporting on progress toward goals and emerging risks and opportunities.
-
-Management integrates impact considerations into operational decision-making through established frameworks and accountability mechanisms. This approach ensures alignment between strategy and execution while maintaining flexibility to respond to changing conditions.`,
+      governanceAndOversight: governance 
+        ? `${governance}\n\n${officer ? `Sustainability oversight is led by ${officer}, ensuring dedicated leadership and accountability for our impact commitments.` : 'Our governance structure ensures alignment between strategy and execution while maintaining flexibility to respond to changing conditions.'}`
+        : `Strong governance provides the foundation for accountability and strategic execution. Our board provides oversight on all sustainability and impact matters, with regular reporting on progress toward goals and emerging risks and opportunities.\n\nManagement integrates impact considerations into operational decision-making through established frameworks and accountability mechanisms. This approach ensures alignment between strategy and execution while maintaining flexibility to respond to changing conditions.`,
 
       lookingForward: `As we look to the future, we remain committed to advancing our impact goals while adapting to evolving stakeholder expectations and external conditions. Our focus areas include expanding program reach, enhancing measurement capabilities, and strengthening partnerships for greater collective impact.
 
@@ -383,12 +436,14 @@ We recognize that achieving our vision requires sustained effort, strategic inve
       appendix: {
         methodology: `Data is collected through systematic tracking of program activities and outcomes, with regular verification and quality assurance processes. We employ both quantitative metrics and qualitative assessments to capture the full dimensions of our impact.`,
         dataQuality: `All reported data undergoes review and validation prior to publication. We are committed to accuracy and transparency in our reporting, and continuously work to enhance our data systems and processes.`,
-        frameworks: [
-          "United Nations Sustainable Development Goals (SDGs)",
-          "Global Reporting Initiative (GRI) Standards",
-          "International Financial Reporting Standards (IFRS)",
-          "Industry-specific frameworks and benchmarks"
-        ]
+        frameworks: frameworks.length > 0 
+          ? frameworks
+          : [
+              "United Nations Sustainable Development Goals (SDGs)",
+              "Global Reporting Initiative (GRI) Standards",
+              "International Financial Reporting Standards (IFRS)",
+              "Industry-specific frameworks and benchmarks"
+            ]
       }
     }
   }

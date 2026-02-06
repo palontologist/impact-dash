@@ -23,27 +23,11 @@ export async function GET() {
       where: eq(userProfiles.clerkUserId, userId),
     })
 
-    // If no profile exists, create a default one (for development)
+    // If no profile exists, return error to redirect user to onboarding
     if (!userProfile) {
-      console.log("No profile found for user:", userId, "- creating default profile")
-      
-      // Insert a default profile
-      const [newProfile] = await db.insert(userProfiles).values({
-        clerkUserId: userId,
-        email: "user@example.com",
-        userType: "enterprise",
-        selectedProfile: "custom",
-        customMetrics: JSON.stringify(["enrollment", "completion", "employment"]),
-        dataInputMethod: "both",
-        onboardingCompleted: true,
-      }).returning()
-      
-      userProfile = newProfile
-    }
-
-    if (!userProfile) {
+      console.log("No profile found for user:", userId, "- please complete onboarding")
       return NextResponse.json(
-        { error: "Could not create or find user profile" },
+        { error: "Profile not found. Please complete onboarding.", needsOnboarding: true },
         { status: 404 }
       )
     }

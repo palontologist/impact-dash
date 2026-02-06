@@ -248,6 +248,22 @@ export const userProfiles = sqliteTable("user_profiles", {
   customMetrics: text("custom_metrics"), // JSON array of selected metric IDs for custom profile
   dataInputMethod: text("data_input_method"), // 'csv', 'manual', 'both'
   onboardingCompleted: integer("onboarding_completed", { mode: "boolean" }).default(false),
+  
+  // Company details
+  companyDescription: text("company_description"),
+  companySize: text("company_size"), // 'small', 'medium', 'large', 'enterprise'
+  website: text("website"),
+  headquarters: text("headquarters"),
+  foundedYear: integer("founded_year"),
+  
+  // Governance
+  governanceStructure: text("governance_structure"), // JSON with board info, committees, etc.
+  sustainabilityOfficer: text("sustainability_officer"),
+  reportingFrameworks: text("reporting_frameworks"), // JSON array: ['GRI', 'SASB', 'SDGs']
+  
+  // Goals from onboarding
+  goals: text("goals"), // JSON array of goal objects {id, title, target, deadline, status}
+  
   createdAt: integer("created_at", { mode: "timestamp" })
     .default(sql`(strftime('%s','now'))`)
     .notNull(),
