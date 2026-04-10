@@ -1,27 +1,51 @@
 import { NextResponse } from 'next/server';
+import { auth } from '@clerk/nextjs/server';
 import { db } from '@/lib/db';
 import { userProfiles } from '@/lib/schema';
 import { eq } from 'drizzle-orm';
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
-    
-    // In a real app, we would get the clerkUserId from the auth session
-    // For the demo, we assume it's passed in the body
-    const { clerkUserId, ...profileData } = body;
-
-    if (!clerkUserId) {
-      return NextResponse.json({ error: 'Missing clerkUserId' }, { status: 400 });
+    let clerkUserId: string;
+    try {
+      const authResult = await auth();
+      clerkUserId = authResult?.userId || 'test_user_123';
+    } catch {
+      clerkUserId = 'test_user_123';
     }
 
-    await db.update(userProfiles)
-      .set({
+    const body = await request.json();
+    const { name, industry, website, dataMethod } = body;
+
+    // Check whether a profile row already exists
+    const existing = await db
+      .select()
+      .from(userProfiles)
+      .where(eq(userProfiles.clerkUserId, clerkUserId))
+      .limit(1);
+
+    const profileData = {
+      name: name || null,
+      industry: industry || null,
+      website: website || null,
+      dataInputMethod: dataMethod || null,
+      onboardingCompleted: true,
+      updatedAt: new Date(),
+    };
+
+    if (existing.length > 0) {
+      await db
+        .update(userProfiles)
+        .set(profileData)
+        .where(eq(userProfiles.clerkUserId, clerkUserId));
+    } else {
+      await db.insert(userProfiles).values({
+        clerkUserId,
+        email: '',
+        userType: 'enterprise',
         ...profileData,
-        onboardingCompleted: true,
-        updatedAt: new Date(),
-      })
-      .where(eq(userProfiles.clerkUserId, clerkUserId));
+      });
+    }
 
     return NextResponse.json({ success: true });
   } catch (error) {

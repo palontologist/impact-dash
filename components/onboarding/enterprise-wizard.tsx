@@ -22,6 +22,7 @@ interface OnboardingData {
 
 interface EnterpriseOnboardingProps {
   onComplete: (data: OnboardingData) => void
+  isInitializing?: boolean
 }
 
 // --- Sub-Components ---
@@ -45,7 +46,7 @@ const StepIndicator = ({ currentStep }: { currentStep: number }) => (
 
 // --- Main Component ---
 
-export default function EnterpriseOnboarding({ onComplete }: EnterpriseOnboardingProps) {
+export default function EnterpriseOnboarding({ onComplete, isInitializing = false }: EnterpriseOnboardingProps) {
   const [step, setStep] = useState<Step>('identity')
   const [loading, setLoading] = useState(false)
   const [data, setData] = useState<OnboardingData>({
@@ -248,9 +249,14 @@ export default function EnterpriseOnboarding({ onComplete }: EnterpriseOnboardin
                 <h2 className="text-3xl font-bold">System Ready</h2>
                 <p className="text-slate-500">Environment for <span className="font-bold text-slate-900">{data.name}</span> is now online.</p>
               </div>
-              <Button size="lg" className="w-full bg-slate-900 text-white" onClick={() => window.location.href = '/dashboard/enterprise'}>
-                Enter Command Center
-              </Button>
+              {isInitializing ? (
+                <div className="flex items-center justify-center gap-2 text-slate-500">
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <span>Launching Command Center...</span>
+                </div>
+              ) : (
+                <p className="text-sm text-slate-400">Redirecting to your dashboard...</p>
+              )}
             </motion.div>
           )}
         </AnimatePresence>

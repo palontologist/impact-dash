@@ -13,7 +13,9 @@ import {
   Home,
   LogOut,
   ChevronDown,
-  User
+  User,
+  Loader2,
+  ClipboardList,
 } from "lucide-react"
 import {
   DropdownMenu,
@@ -31,6 +33,15 @@ import { FormalReportGenerator } from "@/components/formal-report-generator"
 
 type ProfileType = "education" | "finance" | "real_estate" | "human_constitution" | "e2g_food" | "custom"
 
+interface LogEntry {
+  id: number
+  metricId: string
+  value: string
+  date: string
+  notes: string | null
+  source: string
+}
+
 const SIDEBAR_ITEMS = [
   { icon: Home, label: "Overview", value: "overview" },
   { icon: FileText, label: "Reports", value: "reports" },
@@ -44,6 +55,9 @@ export function DashboardLayout() {
   const router = useRouter()
   const [currentProfile, setCurrentProfile] = useState<ProfileType>("education")
   const [activeView, setActiveView] = useState("overview")
+  const [recentEntries, setRecentEntries] = useState<LogEntry[]>([])
+  const [metricNames, setMetricNames] = useState<Record<string, string>>({})
+  const [loadingEntries, setLoadingEntries] = useState(false)
 
   useEffect(() => {
     const savedProfile = localStorage.getItem("selectedProfile") as ProfileType
@@ -51,6 +65,38 @@ export function DashboardLayout() {
       setCurrentProfile(savedProfile)
     }
   }, [])
+
+  useEffect(() => {
+    if (activeView === "overview") {
+      fetchRecentEntries()
+    }
+  }, [activeView])
+
+  async function fetchRecentEntries() {
+    setLoadingEntries(true)
+    try {
+      const [entriesRes, metricsRes] = await Promise.all([
+        fetch("/api/data/manual-input?limit=10"),
+        fetch("/api/data/available-metrics"),
+      ])
+      if (entriesRes.ok) {
+        const json = await entriesRes.json()
+        setRecentEntries(json.data || [])
+      }
+      if (metricsRes.ok) {
+        const json = await metricsRes.json()
+        const map: Record<string, string> = {}
+        for (const m of json.metrics || []) {
+          map[m.metricId] = m.metricName
+        }
+        setMetricNames(map)
+      }
+    } catch {
+      // silently fail — dashboard still shows static tiles
+    } finally {
+      setLoadingEntries(false)
+    }
+  }
 
   const handleExportPDF = () => {
     alert("PDF export feature coming soon!")
@@ -565,6 +611,99 @@ export function DashboardLayout() {
                   </div>
                 </div>
               )}
+
+              {/* Custom Profile */}
+              {currentProfile === "custom" && (
+                <div className="space-y-6">
+                  {recentEntries.length === 0 ? (
+                    <Card>
+                      <CardContent className="py-16 text-center">
+                        <ClipboardList className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                        <h3 className="text-lg font-semibold mb-2">No entries yet</h3>
+                        <p className="text-muted-foreground mb-4">
+                          Go to <strong>Data Input</strong> to log your first metric values. They will appear here automatically.
+                        </p>
+                        <Button onClick={() => setActiveView("data")}>Go to Data Input</Button>
+                      </CardContent>
+                    </Card>
+                  ) : (
+                    <div>
+                      <h2 className="text-xl font-semibold mb-4">Your Custom Metrics</h2>
+                      <MetricTileGrid cols={2}>
+                        {Object.entries(
+                          recentEntries.reduce<Record<string, LogEntry>>((acc, e) => {
+                            if (!acc[e.metricId]) acc[e.metricId] = e
+                            return acc
+                          }, {})
+                        ).map(([metricId, entry]) => (
+                          <MetricTile
+                            key={metricId}
+                            name={metricNames[metricId] || metricId}
+                            value={entry.value}
+                            subtext={new Date(entry.date).toLocaleDateString()}
+                            trend="neutral"
+                          />
+                        ))}
+                      </MetricTileGrid>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Recent Log Entries — shown for all profiles */}
+              <div className="mt-8">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-xl font-semibold flex items-center gap-2">
+                    <ClipboardList className="h-5 w-5 text-muted-foreground" />
+                    Recent Log Entries
+                  </h2>
+                  <Button variant="outline" size="sm" onClick={fetchRecentEntries} disabled={loadingEntries}>
+                    {loadingEntries ? <Loader2 className="h-4 w-4 animate-spin" /> : "Refresh"}
+                  </Button>
+                </div>
+
+                {loadingEntries ? (
+                  <Card>
+                    <CardContent className="py-8 flex justify-center">
+                      <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                    </CardContent>
+                  </Card>
+                ) : recentEntries.length === 0 ? (
+                  <Card>
+                    <CardContent className="py-8 text-center text-muted-foreground">
+                      <p>No metric entries logged yet.</p>
+                      <Button variant="link" className="mt-1" onClick={() => setActiveView("data")}>
+                        Log your first entry →
+                      </Button>
+                    </CardContent>
+                  </Card>
+                ) : (
+                  <Card>
+                    <CardContent className="p-0">
+                      <div className="divide-y">
+                        {recentEntries.slice(0, 10).map((entry) => (
+                          <div key={entry.id} className="flex items-center justify-between px-6 py-3">
+                            <div>
+                              <p className="font-medium text-sm">
+                                {metricNames[entry.metricId] || entry.metricId}
+                              </p>
+                              {entry.notes && (
+                                <p className="text-xs text-muted-foreground mt-0.5">{entry.notes}</p>
+                              )}
+                            </div>
+                            <div className="text-right">
+                              <p className="font-semibold">{entry.value}</p>
+                              <p className="text-xs text-muted-foreground">
+                                {new Date(entry.date).toLocaleDateString()}
+                              </p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+              </div>
             </>
           )}
 
