@@ -1,5 +1,6 @@
 import { db } from "@/lib/db"
-import { userProfiles, exportLogs } from "@/lib/schema"
+import { userProfiles } from "@/lib/schema"
+import { exportLogs } from "@/lib/export-schema"
 import { eq } from "drizzle-orm"
 
 export async function createEnterpriseProfile(data: {
@@ -22,7 +23,8 @@ export async function createEnterpriseProfile(data: {
 }
 
 export async function seedEnterpriseData(orgId: number) {
-  // Seed some initial export logs for demo purposes
+  const now = new Date();
+  
   return await db.insert(exportLogs).values([
     {
       organizationId: orgId,
@@ -33,6 +35,9 @@ export async function seedEnterpriseData(orgId: number) {
       distanceKm: 450,
       carbonEmitted: 2362.5, // (50 * 450 * 0.105)
       status: 'verified',
+      timestamp: now,
+      createdAt: now,
+      updatedAt: now,
     },
     {
       organizationId: orgId,
@@ -43,6 +48,9 @@ export async function seedEnterpriseData(orgId: number) {
       distanceKm: 1200,
       carbonEmitted: 180, // (10 * 1200 * 0.015)
       status: 'verified',
+      timestamp: now,
+      createdAt: now,
+      updatedAt: now,
     },
     {
       organizationId: orgId,
@@ -53,6 +61,9 @@ export async function seedEnterpriseData(orgId: number) {
       distanceKm: 3000,
       carbonEmitted: 3000, // (2 * 3000 * 0.5)
       status: 'verified',
+      timestamp: now,
+      createdAt: now,
+      updatedAt: now,
     }
   ]).returning();
 }

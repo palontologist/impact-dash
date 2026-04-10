@@ -1,8 +1,19 @@
 import { db } from "@/lib/db"
-import { exportLogs, userProfiles } from "@/lib/schema"
+import { exportLogs } from "@/lib/export-schema"
 import { eq } from "drizzle-orm"
 
-export async function getEnterpriseDashboardData(orgId: number) {
+interface DashboardData {
+  metrics: {
+    totalCarbon: number;
+    totalWeight: number;
+    shipmentCount: number;
+    carbonIntensity: number;
+  };
+  recentLogs: any[];
+  chartData: any[];
+}
+
+export async function getEnterpriseDashboardData(orgId: number): Promise<DashboardData> {
   try {
     // 1. Fetch all logs for this org
     const logs = await db.select().from(exportLogs).where(eq(exportLogs.organizationId, orgId));

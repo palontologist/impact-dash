@@ -52,7 +52,7 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error('EXPORT_LOG_ERROR:', error);
     if (error instanceof z.ZodError) {
-      return NextResponse.json({ success: false, error: error.errors }, { status: 400 });
+      return NextResponse.json({ success: false, error: error.issues }, { status: 400 });
     }
     return NextResponse.json({ success: false, error: 'Internal Server Error' }, { status: 500 });
   }

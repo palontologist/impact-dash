@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { useToast } from "@/components/ui/use-toast" // Assuming toast is available
+import { toast } from "sonner"
 import { Loader2, Package, Truck, Ship, Plane, Train } from "lucide-react"
 
 const TRANSPORT_MODES = [
@@ -46,7 +46,7 @@ export function QuickLogForm({ organizationId }: { organizationId: number }) {
       if (!response.ok) throw new Error('Failed to log export')
 
       const result = await response.json()
-      alert(`Success! Logged ${result.calculation.carbonEmitted.toFixed(2)} kg CO2e`)
+      toast.success(`Logged ${result.calculation.carbonEmitted.toFixed(2)} kg CO2e`)
       
       // Reset form
       setFormData({
@@ -59,7 +59,7 @@ export function QuickLogForm({ organizationId }: { organizationId: number }) {
       })
     } catch (error) {
       console.error(error)
-      alert('Error logging export. Please check your inputs.')
+      toast.error('Error logging export. Please check your inputs.')
     } finally {
       setLoading(false)
     }
