@@ -18,8 +18,21 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const body = await req.json()
+    let body;
+    try {
+      body = await req.json()
+    } catch {
+      return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 })
+    }
+    
     const { userType, profile, industry, reason, goals, customMetrics, dataInputMethod } = body
+
+    // Validate required fields
+    if (!userType || !profile || !industry) {
+      return NextResponse.json({ 
+        error: "Missing required fields: userType, profile, industry" 
+      }, { status: 400 })
+    }
 
     // Check if user already has a profile
     const existingProfile = await db
@@ -34,7 +47,7 @@ export async function POST(req: NextRequest) {
       userType,
       selectedProfile: profile,
       industry,
-      reason: JSON.stringify(reason),
+      reason: reason ? JSON.stringify(reason) : null,
       goals: goals ? JSON.stringify(goals) : null,
       customMetrics: customMetrics ? JSON.stringify(customMetrics) : null,
       dataInputMethod: dataInputMethod || null,

@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge as ShadcnBadge } from "@/components/ui/badge"
+import { toast } from "sonner"
 import { 
   BarChart, 
   Bar, 
@@ -28,7 +29,8 @@ import {
   X,
   Plus,
   Zap,
-  ShieldCheck
+  ShieldCheck,
+  Loader2
 } from "lucide-react"
 
 // --- Types ---
@@ -68,18 +70,52 @@ const MetricCard = ({ title, value, unit, icon: Icon, trend }: { title: string, 
   </motion.div>
 )
 
-const QuickLogModal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) => {
+const QuickLogModal = ({ isOpen, onClose, organizationId }: { isOpen: boolean, onClose: () => void, organizationId: number }) => {
+  const [loading, setLoading] = useState(false)
   const [formData, setFormData] = useState({
     commodity: '',
     weight: '',
-    mode: 'truck',
+    weightUnit: 'tons',
+    transportMode: 'truck',
     distance: ''
   })
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const updateForm = (field: string, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }))
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    console.log('Logging:', formData)
-    onClose()
+    setLoading(true)
+    
+    try {
+      const response = await fetch('/api/data/export-log', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          organizationId,
+          commodityType: formData.commodity,
+          weight: parseFloat(formData.weight),
+          weightUnit: formData.weightUnit,
+          transportMode: formData.transportMode,
+          distanceKm: parseFloat(formData.distance),
+        }),
+      })
+      
+      const result = await response.json()
+      
+      if (!response.ok) throw new Error(result.error)
+      
+      toast.success(`Logged ${result.calculation.carbonEmitted.toFixed(2)} kg CO2e`)
+      onClose()
+      
+      // Refresh the page to show new data
+      window.location.reload()
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Failed to log shipment')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -118,24 +154,35 @@ const QuickLogModal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => vo
                   type="text"
                   placeholder="e.g. Wheat, Copper, Lithium"
                   value={formData.commodity}
-                  onChange={(e) => setFormData({...formData, commodity: e.target.value})}
+                  onChange={(e) => updateForm('commodity', e.target.value)}
                   className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder:text-white/20 focus:outline-none focus:border-white/30 transition-colors"
                   required
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="text-[10px] font-mono uppercase tracking-wider text-white/40">Weight (tons)</label>
+              <div className="grid grid-cols-3 gap-4">
+                <div className="space-y-2 col-span-2">
+                  <label className="text-[10px] font-mono uppercase tracking-wider text-white/40">Weight</label>
                   <input
                     type="number"
                     placeholder="0.00"
                     step="0.01"
                     value={formData.weight}
-                    onChange={(e) => setFormData({...formData, weight: e.target.value})}
+                    onChange={(e) => updateForm('weight', e.target.value)}
                     className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder:text-white/20 focus:outline-none focus:border-white/30 transition-colors"
                     required
                   />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-mono uppercase tracking-wider text-white/40">Unit</label>
+                  <select
+                    value={formData.weightUnit}
+                    onChange={(e) => updateForm('weightUnit', e.target.value)}
+                    className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-white/30 transition-colors"
+                  >
+                    <option value="tons" className="bg-black">tons</option>
+                    <option value="kg" className="bg-black">kg</option>
+                  </select>
                 </div>
                 <div className="space-y-2">
                   <label className="text-[10px] font-mono uppercase tracking-wider text-white/40">Distance (km)</label>
@@ -143,7 +190,7 @@ const QuickLogModal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => vo
                     type="number"
                     placeholder="0"
                     value={formData.distance}
-                    onChange={(e) => setFormData({...formData, distance: e.target.value})}
+                    onChange={(e) => updateForm('distance', e.target.value)}
                     className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder:text-white/20 focus:outline-none focus:border-white/30 transition-colors"
                     required
                   />
@@ -162,9 +209,9 @@ const QuickLogModal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => vo
                     <button
                       key={mode.id}
                       type="button"
-                      onClick={() => setFormData({...formData, mode: mode.id})}
+                      onClick={() => updateForm('transportMode', mode.id)}
                       className={`p-3 rounded-lg border transition-all ${
-                        formData.mode === mode.id 
+                        formData.transportMode === mode.id 
                           ? 'bg-white text-black border-white' 
                           : 'bg-white/5 border-white/10 hover:border-white/30'
                       }`}
@@ -176,9 +223,18 @@ const QuickLogModal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => vo
                 </div>
               </div>
 
-              <Button type="submit" className="w-full bg-white text-black hover:bg-white/90 py-6 mt-4 font-mono uppercase tracking-wider">
-                <Zap className="w-4 h-4 mr-2" />
-                Initialize Entry
+              <Button type="submit" disabled={loading} className="w-full bg-white text-black hover:bg-white/90 py-6 mt-4 font-mono uppercase tracking-wider">
+                {loading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Processing...
+                  </>
+                ) : (
+                  <>
+                    <Zap className="w-4 h-4 mr-2" />
+                    Initialize Entry
+                  </>
+                )}
               </Button>
             </form>
           </motion.div>
@@ -190,7 +246,7 @@ const QuickLogModal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => vo
 
 // --- Main Dashboard Component ---
 
-export default function EnterpriseDashboard({ data }: { data: DashboardData }) {
+export default function EnterpriseDashboard({ data, organizationId = 1 }: { data: DashboardData, organizationId?: number }) {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const { metrics, recentLogs, chartData } = data
 
@@ -326,7 +382,7 @@ export default function EnterpriseDashboard({ data }: { data: DashboardData }) {
       </main>
 
       {/* Quick Log Modal */}
-      <QuickLogModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+      <QuickLogModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} organizationId={organizationId} />
     </div>
   )
 }

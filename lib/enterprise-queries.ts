@@ -1,6 +1,4 @@
-import { db } from "@/lib/db"
-import { exportLogs } from "@/lib/export-schema"
-import { eq } from "drizzle-orm"
+import { client } from "@/lib/db"
 
 interface DashboardData {
   metrics: {
@@ -15,44 +13,59 @@ interface DashboardData {
 
 export async function getEnterpriseDashboardData(orgId: number): Promise<DashboardData> {
   try {
-    // 1. Fetch all logs for this org
-    const logs = await db.select().from(exportLogs).where(eq(exportLogs.organizationId, orgId));
+    console.log('Fetching logs for org:', orgId);
+    
+    const result = await client.execute({
+      sql: 'SELECT * FROM export_logs WHERE organization_id = ?',
+      args: [orgId]
+    });
+    
+    const rawLogs = result.rows || [];
 
-    // 2. Calculate Aggregates
-    const totalCarbon = logs.reduce((acc, log) => acc + (log.carbonEmitted || 0), 0);
-    const totalWeight = logs.reduce((acc, log) => acc + (log.weightUnit === 'kg' ? (log.weight || 0) / 1000 : (log.weight || 0)), 0);
+    // Map snake_case from DB to camelCase for Frontend
+    const logs = rawLogs.map((log: any) => ({
+      id: log.id,
+      organizationId: log.organization_id,
+      commodityType: log.commodity_type,
+      weight: log.weight,
+      weightUnit: log.weight_unit,
+      transportMode: log.transport_mode,
+      distanceKm: log.distance_km,
+      carbonEmitted: log.carbon_emitted || 0,
+      status: log.status,
+      notes: log.notes,
+      timestamp: log.timestamp,
+      createdAt: log.created_at,
+      updatedAt: log.updated_at,
+    }));
+
+    // Calculate Aggregates
+    const totalCarbon = logs.reduce((acc: number, log: any) => acc + (log.carbonEmitted || 0), 0);
+    const totalWeight = logs.reduce((acc: number, log: any) => {
+      const weightInTons = log.weightUnit === 'kg' ? log.weight / 1000 : log.weight;
+      return acc + weightInTons;
+    }, 0);
     const shipmentCount = logs.length;
-
-    // 3. Calculate Carbon Intensity (kg CO2e per ton)
     const carbonIntensity = totalWeight > 0 ? (totalCarbon / totalWeight) : 0;
 
-    // 4. Get Recent Logs (last 5)
-    const recentLogs = [...logs].sort((a, b) => {
-      const timeA = a.timestamp ? new Date(a.timestamp).getTime() : 0;
-      const timeB = b.timestamp ? new Date(b.timestamp).getTime() : 0;
-      return timeB - timeA;
-    }).slice(0, 5);
+    // Get Recent Logs (last 5)
+    const recentLogs = [...logs].sort((a: any, b: any) => b.timestamp - a.timestamp).slice(0, 5);
 
-    // 5. Prepare Chart Data
-    const chartData = logs.map(log => ({
-      date: log.timestamp ? new Date(log.timestamp).toLocaleDateString() : 'Unknown',
+    // Prepare Chart Data
+    const chartData = logs.map((log: any) => ({
+      date: new Date(log.timestamp * 1000).toLocaleDateString(),
       carbon: log.carbonEmitted || 0,
       weight: log.weight || 0
-    })).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    }));
 
-    return {
-      metrics: {
-        totalCarbon,
-        totalWeight,
-        shipmentCount,
-        carbonIntensity
-      },
+    // Return a plain object (JSON.parse(JSON.stringify())) to ensure no Libsql classes are passed to Client Components
+    return JSON.parse(JSON.stringify({
+      metrics: { totalCarbon, totalWeight, shipmentCount, carbonIntensity },
       recentLogs,
       chartData
-    };
+    }));
   } catch (error) {
-    console.error("Database Query Error in getEnterpriseDashboardData:", error);
-    // Return empty state instead of throwing to prevent page crash
+    console.error("Database Query Error:", error);
     return {
       metrics: { totalCarbon: 0, totalWeight: 0, shipmentCount: 0, carbonIntensity: 0 },
       recentLogs: [],
