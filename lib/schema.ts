@@ -1,8 +1,32 @@
+// ... existing imports ...
 import { sqliteTable, text, integer, real } from "drizzle-orm/sqlite-core"
 import { sql } from "drizzle-orm"
 
+// Export Logs for Enterprise Carbon Tracking
+export const exportLogs = sqliteTable("export_logs", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  organizationId: integer("organization_id").notNull(),
+  commodityType: text("commodity_type").notNull(),
+  weight: real("weight").notNull(),
+  weightUnit: text("weight_unit").notNull(), // 'tons', 'kg'
+  transportMode: text("transport_mode").notNull(), // 'truck', 'ship', 'rail', 'air'
+  distanceKm: real("distance_km").notNull(),
+  carbonEmitted: real("carbon_emitted").notNull(), // kg CO2e
+  status: text("status").default("pending"), // 'pending', 'verified', 'flagged'
+  notes: text("notes"),
+  timestamp: integer("timestamp", { mode: "timestamp" }).notNull(),
+  createdAt: integer("created_at", { mode: "timestamp" })
+    .default(sql`(strftime('%s','now'))`)
+    .notNull(),
+  updatedAt: integer("updated_at", { mode: "timestamp" })
+    .default(sql`(strftime('%s','now'))`)
+    .notNull(),
+})
+
 // Students table
 export const students = sqliteTable("students", {
+// ... rest of the file ...
+
   id: integer("id").primaryKey({ autoIncrement: true }),
   firstName: text("first_name").notNull(),
   lastName: text("last_name").notNull(),

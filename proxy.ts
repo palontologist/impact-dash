@@ -1,27 +1,36 @@
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
+import { NextResponse } from 'next/server';
 
-// Define protected routes that require authentication
 const isProtectedRoute = createRouteMatcher([
-  '/dashboard(.*)',
-  '/onboarding(.*)',
+  '/enterprise/dashboard(.*)',
   '/api/dashboard(.*)',
   '/api/students(.*)',
   '/api/metrics(.*)',
   '/api/esg(.*)',
 ]);
 
+const isOnboardingRoute = createRouteMatcher(['/onboarding(.*)']);
+
 export default clerkMiddleware(async (auth, req) => {
-  // Protect routes that require authentication
+  const { userId } = await auth();
+  const { pathname } = req.nextUrl;
+
   if (isProtectedRoute(req)) {
-    await auth.protect();
+    if (!userId) {
+      return auth().redirectToSignIn();
+    }
   }
+
+  if (isOnboardingRoute(req) && !userId) {
+    return NextResponse.redirect(new URL('/', req.url));
+  }
+
+  return NextResponse.next();
 });
 
 export const config = {
   matcher: [
-    // Skip Next.js internals and all static files, unless found in search params
     '/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
-    // Always run for API routes
     '/(api|trpc)(.*)',
   ],
 };
