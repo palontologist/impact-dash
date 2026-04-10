@@ -57,7 +57,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ 
       success: true, 
-      data: { id: result.lastInsertRowid },
+      data: { id: Number(result.lastInsertRowid) },
       calculation: { carbonEmitted, factorUsed: factor }
     });
 
