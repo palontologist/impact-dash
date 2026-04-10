@@ -3,22 +3,31 @@ import { drizzle } from "drizzle-orm/libsql"
 import * as schema from "./schema"
 
 /**
- * Database configuration
+ * Database configuration - Use combined URL format with auth token
  */
-const databaseUrl = process.env.TURSO_DATABASE_URL || "file:local.db"
-const authToken = process.env.TURSO_AUTH_TOKEN
+const getDbUrl = () => {
+  const baseUrl = process.env.TURSO_DATABASE_URL || "file:local.db"
+  const authToken = process.env.TURSO_AUTH_TOKEN
+  
+  // For Turso, use combined URL format with auth token
+  if (baseUrl.startsWith('libsql://')) {
+    return `${baseUrl}?authToken=${authToken}`
+  }
+  
+  return baseUrl
+}
+
+const databaseUrl = getDbUrl()
 
 /**
  * Turso client instance
  */
 export const client = createClient({
   url: databaseUrl,
-  authToken,
 })
 
 /**
  * Drizzle database instance with schema
- * Pre-configured with Turso client and all table schemas
  */
 export const db = drizzle(client, { schema })
 
@@ -26,4 +35,3 @@ export const db = drizzle(client, { schema })
  * Database type for TypeScript inference
  */
 export type Database = typeof db
-
