@@ -1,6 +1,6 @@
 import { db } from "@/lib/db"
 import { userProfiles } from "@/lib/schema"
-import { exportLogs } from "@/lib/export-schema"
+import { exportLogs } from "@/lib/schema"
 import { eq } from "drizzle-orm"
 
 export async function createEnterpriseProfile(data: {

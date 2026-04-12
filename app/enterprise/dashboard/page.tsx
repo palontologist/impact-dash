@@ -2,6 +2,8 @@ import React from 'react'
 import EnterpriseDashboard from '@/components/enterprise/enterprise-dashboard'
 import { getEnterpriseDashboardData } from '@/lib/enterprise-queries'
 
+export const dynamic = 'force-dynamic'
+
 export default async function EnterpriseDashboardPage() {
   // Default org ID = 1 for demo
   const orgId = 1

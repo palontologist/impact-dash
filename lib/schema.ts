@@ -23,6 +23,9 @@ export const exportLogs = sqliteTable("export_logs", {
     .notNull(),
 })
 
+export type InsertExportLog = typeof exportLogs.$inferInsert
+export type SelectExportLog = typeof exportLogs.$inferSelect
+
 // Students table
 export const students = sqliteTable("students", {
 // ... rest of the file ...
