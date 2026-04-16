@@ -4,8 +4,6 @@ import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Badge as ShadcnBadge } from "@/components/ui/badge"
 import { toast } from "sonner"
 import { 
   BarChart, 
@@ -23,14 +21,15 @@ import {
   Plane, 
   Train, 
   TrendingDown, 
-  AlertCircle, 
   Activity,
   Terminal,
   X,
   Plus,
   Zap,
   ShieldCheck,
-  Loader2
+  Loader2,
+  Trash2,
+  RefreshCw
 } from "lucide-react"
 
 // --- Types ---
@@ -248,7 +247,30 @@ const QuickLogModal = ({ isOpen, onClose, organizationId }: { isOpen: boolean, o
 
 export default function EnterpriseDashboard({ data, organizationId = 1 }: { data: DashboardData, organizationId?: number }) {
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isClearing, setIsClearing] = useState(false)
   const { metrics, recentLogs, chartData } = data
+
+  const handleClearData = async () => {
+    if (!confirm('Are you sure you want to clear all shipment data? This cannot be undone.')) {
+      return
+    }
+
+    setIsClearing(true)
+    try {
+      const response = await fetch(`/api/enterprise/clear-data?organizationId=${organizationId}`, {
+        method: 'DELETE',
+      })
+
+      if (!response.ok) throw new Error('Failed to clear data')
+
+      toast.success('All shipment data cleared successfully')
+      window.location.reload()
+    } catch (error) {
+      toast.error('Failed to clear data')
+    } finally {
+      setIsClearing(false)
+    }
+  }
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white">
@@ -269,6 +291,18 @@ export default function EnterpriseDashboard({ data, organizationId = 1 }: { data
               <Activity className="w-3 h-3" />
               SYSTEM ONLINE
             </div>
+            {metrics.shipmentCount > 0 && (
+              <Button
+                onClick={handleClearData}
+                disabled={isClearing}
+                size="sm"
+                variant="outline"
+                className="border-red-500/50 text-red-400 hover:bg-red-500/10 font-mono text-[10px] uppercase tracking-wider"
+              >
+                <Trash2 className="w-3 h-3 mr-2" />
+                {isClearing ? 'Clearing...' : 'Clear Data'}
+              </Button>
+            )}
             <Button 
               onClick={() => setIsModalOpen(true)}
               size="sm" 
