@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { 
+import {
   BarChart3, 
   FileText, 
   Database, 
@@ -16,6 +16,7 @@ import {
   User,
   Loader2,
   ClipboardList,
+  Leaf,
 } from "lucide-react"
 import {
   DropdownMenu,
@@ -30,6 +31,7 @@ import { MetricTile, MetricTileGrid } from "@/components/metric-tile"
 import { StoryPanel } from "@/components/story-panel"
 import { DataInputPanel } from "@/components/data-input-panel"
 import { FormalReportGenerator } from "@/components/formal-report-generator"
+import { CarbonEmissionsDashboard } from "@/components/carbon-emissions-dashboard"
 
 type ProfileType = "education" | "finance" | "real_estate" | "human_constitution" | "e2g_food" | "custom"
 
@@ -44,6 +46,7 @@ interface LogEntry {
 
 const SIDEBAR_ITEMS = [
   { icon: Home, label: "Overview", value: "overview" },
+  { icon: Leaf, label: "Carbon Emissions", value: "carbon" },
   { icon: FileText, label: "Reports", value: "reports" },
   { icon: User, label: "Profile", value: "profile" },
   { icon: Database, label: "Data Input", value: "data" },
@@ -709,6 +712,10 @@ export function DashboardLayout() {
 
           {activeView === "reports" && (
             <FormalReportGenerator />
+          )}
+
+          {activeView === "carbon" && (
+            <CarbonEmissionsDashboard />
           )}
 
           {activeView === "data" && (

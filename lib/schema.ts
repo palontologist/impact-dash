@@ -498,3 +498,73 @@ export type InsertE2GFoodDonor = typeof e2gFoodDonors.$inferInsert
 export type SelectE2GFoodDonor = typeof e2gFoodDonors.$inferSelect
 export type InsertE2GFoodImpactStory = typeof e2gFoodImpactStories.$inferInsert
 export type SelectE2GFoodImpactStory = typeof e2gFoodImpactStories.$inferSelect
+
+export const carbonEmissions = sqliteTable("carbon_emissions", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  userId: integer("user_id").notNull().references(() => userProfiles.id, { onDelete: "cascade" }),
+  scope: text("scope").notNull(), // '1', '2', '3'
+  category: text("category").notNull(), // e.g., 'electricity', 'transport', 'supply_chain'
+  subcategory: text("subcategory"), // e.g., 'commuting', 'freight', 'business_travel'
+  activityName: text("activity_name").notNull(), // e.g., 'Electricity Bill #1234', 'Employee Commute', 'Shipping Container'
+  quantity: real("quantity").notNull(), // e.g., kWh, km, liters
+  unit: text("unit").notNull(), // 'kWh', 'km', 'liters', 'kg'
+  emissionFactor: real("emission_factor").notNull(), // kg CO2e per unit
+  carbonEmitted: real("carbon_emitted").notNull(), // kg CO2e (calculated)
+  
+  // Context for categorization
+  industry: text("industry"),
+  teamSize: text("team_size"), // '1-10', '11-50', '51-200', '201-500', '500+'
+  location: text("location"),
+  region: text("region"),
+  
+  // For commuting/transport comparisons
+  transportMode: text("transport_mode"), // 'car', 'bus', 'train', 'walk', 'bike', 'electric_vehicle'
+  distanceKm: real("distance_km"),
+  
+  // Supply chain details
+  supplierName: text("supplier_name"),
+  countryOfOrigin: text("country_of_origin"),
+  
+  // Period tracking
+  period: text("period").notNull(), // 'monthly', 'quarterly', 'annual'
+  startDate: integer("start_date", { mode: "timestamp" }).notNull(),
+  endDate: integer("end_date", { mode: "timestamp" }).notNull(),
+  
+  notes: text("notes"),
+  dataSource: text("data_source"), // 'manual', 'csv', 'api', 'utility_bill'
+  status: text("status").default("verified"), // 'pending', 'verified', 'estimated'
+  createdAt: integer("created_at", { mode: "timestamp" })
+    .default(sql`(strftime('%s','now'))`)
+    .notNull(),
+  updatedAt: integer("updated_at", { mode: "timestamp" })
+    .default(sql`(strftime('%s','now'))`)
+    .notNull(),
+})
+
+export type InsertCarbonEmission = typeof carbonEmissions.$inferInsert
+export type SelectCarbonEmission = typeof carbonEmissions.$inferSelect
+
+// Commute alternatives comparison tracking
+export const commuteAlternatives = sqliteTable("commute_alternatives", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  userId: integer("user_id").notNull().references(() => userProfiles.id, { onDelete: "cascade" }),
+  employeeId: text("employee_id"),
+  baselineMode: text("baseline_mode").notNull(), // 'car', 'motorcycle', 'taxi'
+  alternativeMode: text("alternative_mode").notNull(), // 'walk', 'bike', 'bus', 'train', 'public_transit'
+  distanceKm: real("distance_km").notNull(),
+  tripsPerWeek: integer("trips_per_week").notNull(),
+  weeksPerYear: integer("weeks_per_year").default(48),
+  baselineEmission: real("baseline_emission").notNull(), // kg CO2e/year
+  alternativeEmission: real("alternative_emission").notNull(), // kg CO2e/year
+  savingsEmission: real("savings_emission").notNull(), // kg CO2e/year saved
+  savingsPercent: real("savings_percent").notNull(),
+  calculatedAt: integer("calculated_at", { mode: "timestamp" })
+    .default(sql`(strftime('%s','now'))`)
+    .notNull(),
+  createdAt: integer("created_at", { mode: "timestamp" })
+    .default(sql`(strftime('%s','now'))`)
+    .notNull(),
+})
+
+export type InsertCommuteAlternative = typeof commuteAlternatives.$inferInsert
+export type SelectCommuteAlternative = typeof commuteAlternatives.$inferSelect

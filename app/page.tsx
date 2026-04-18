@@ -61,12 +61,19 @@ export default function LandingPage() {
           </SignedOut>
 
           <SignedIn>
-            <Link href="/enterprise/dashboard">
-              <Button size="lg" className="bg-bg-brand-solid text-white hover:bg-bg-brand-solid/90 px-8 py-6 text-base font-medium rounded-full transition-all hover:scale-105 active:scale-95">
-                Enter Command Center
-                <ArrowRight className="ml-2 w-4 h-4" />
-              </Button>
-            </Link>
+            <div className="flex flex-col sm:flex-row gap-4 items-center">
+              <Link href="/dashboard">
+                <Button size="lg" className="bg-bg-brand-solid text-white hover:bg-bg-brand-solid/90 px-8 py-6 text-base font-medium rounded-full transition-all hover:scale-105 active:scale-95">
+                  Enter Command Center
+                  <ArrowRight className="ml-2 w-4 h-4" />
+                </Button>
+              </Link>
+              <Link href="/enterprise/dashboard">
+                <Button size="lg" variant="outline" className="px-8 py-6 text-base font-medium rounded-full">
+                  Enterprise Logistics
+                </Button>
+              </Link>
+            </div>
             <UserButton afterSignOutUrl="/" />
           </SignedIn>
         </motion.div>

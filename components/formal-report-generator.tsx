@@ -7,12 +7,13 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
-import { FileText, Download, Loader2, CheckCircle2, AlertCircle } from "lucide-react"
+import { FileText, Download, Loader2, CheckCircle2, AlertCircle, Shield, Building2, Leaf, Users } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 interface ReportMetadata {
   generatedAt: string
   period: string
+  template: string
   dateRange: {
     start: string
     end: string
@@ -20,6 +21,58 @@ interface ReportMetadata {
   profileType: string
   userType: string
 }
+
+type ReportTemplate = 'general' | 'csrd' | 'gri' | 'sasb' | 'sdg'
+
+const REPORT_TEMPLATES: Array<{
+  id: ReportTemplate
+  name: string
+  description: string
+  icon: React.ComponentType<{ className?: string }>
+  bestFor: string
+  requirements: string[]
+}> = [
+  {
+    id: 'csrd',
+    name: 'CSRD Compliance',
+    description: 'Corporate Sustainability Reporting Directive - EU mandatory reporting',
+    icon: Shield,
+    bestFor: 'EU-based companies, large enterprises, listed companies',
+    requirements: ['Double Materiality Assessment', 'GHG Protocol Scope 1/2/3', 'ESRS Disclosures', 'Value Chain Data'],
+  },
+  {
+    id: 'gri',
+    name: 'GRI Standards',
+    description: 'Global Reporting Initiative - worldwide sustainability reporting',
+    icon: FileText,
+    bestFor: 'Companies seeking international sustainability reporting',
+    requirements: ['GRI Universal Standards', 'Topic-specific Standards', 'Stakeholder Engagement', 'Materiality Process'],
+  },
+  {
+    id: 'sasb',
+    name: 'SASB/ISSB',
+    description: 'Industry-specific sustainability metrics',
+    icon: Building2,
+    bestFor: 'Investors, financial disclosures, industry comparability',
+    requirements: ['Industry Materiality Map', 'Financial Material Topics', 'Quantifiable Metrics', 'Disclosure Framework'],
+  },
+  {
+    id: 'sdg',
+    name: 'SDG Impact',
+    description: 'UN Sustainable Development Goals alignment report',
+    icon: Leaf,
+    bestFor: 'Impact investors, NGOs, social enterprises',
+    requirements: ['SDG Priority Mapping', 'Impact Metrics', 'Contribution Claims', 'Baseline & Targets'],
+  },
+  {
+    id: 'general',
+    name: 'General Impact',
+    description: 'Flexible format for general sustainability reporting',
+    icon: Users,
+    bestFor: 'Startups, small businesses, general stakeholders',
+    requirements: ['Key Performance Indicators', 'Narrative Storytelling', 'Progress Tracking', 'Goals & Targets'],
+  },
+]
 
 interface GeneratedReport {
   report: {
@@ -60,6 +113,7 @@ interface GeneratedReport {
 
 export function FormalReportGenerator() {
   const [reportPeriod, setReportPeriod] = useState<'monthly' | 'quarterly' | 'annual'>('quarterly')
+  const [reportTemplate, setReportTemplate] = useState<ReportTemplate>('general')
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
   const [generating, setGenerating] = useState(false)
@@ -80,6 +134,7 @@ export function FormalReportGenerator() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           reportPeriod,
+          template: reportTemplate,
           startDate,
           endDate,
         }),
@@ -143,7 +198,7 @@ export function FormalReportGenerator() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>
               <Label htmlFor="reportPeriod">Report Period</Label>
               <Select value={reportPeriod} onValueChange={(v) => setReportPeriod(v as typeof reportPeriod)}>
@@ -154,6 +209,19 @@ export function FormalReportGenerator() {
                   <SelectItem value="monthly">Monthly</SelectItem>
                   <SelectItem value="quarterly">Quarterly</SelectItem>
                   <SelectItem value="annual">Annual</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="template">Report Template</Label>
+              <Select value={reportTemplate} onValueChange={(v) => setReportTemplate(v as ReportTemplate)}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {REPORT_TEMPLATES.map((t) => (
+                    <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -177,24 +245,78 @@ export function FormalReportGenerator() {
             </div>
           </div>
 
-          <div className="border-t pt-4">
-            <h4 className="text-sm font-semibold mb-3">Report Includes:</h4>
-            <div className="grid grid-cols-2 gap-2">
-              {[
-                'Executive Summary',
-                'Key Metrics Analysis',
-                'Sustainability Goals',
-                'Strategic Initiatives',
-                'Stakeholder Impact',
-                'Governance Overview',
-                'Forward Commitments',
-                'Framework Alignment',
-              ].map((feature) => (
-                <div key={feature} className="flex items-center gap-2 text-sm">
-                  <CheckCircle2 className="h-4 w-4 text-green-600" />
-                  <span>{feature}</span>
+          <Card className="bg-slate-50 border-slate-200">
+            <CardContent className="pt-4">
+              <div className="flex items-start gap-3">
+                {(() => {
+                  const template = REPORT_TEMPLATES.find(t => t.id === reportTemplate)
+                  const Icon = template?.icon || FileText
+                  return <Icon className="h-5 w-5 mt-0.5 text-slate-600" />
+                })()}
+                <div>
+                  <h4 className="font-medium text-slate-900">
+                    {REPORT_TEMPLATES.find(t => t.id === reportTemplate)?.name}
+                  </h4>
+                  <p className="text-sm text-slate-600">
+                    {REPORT_TEMPLATES.find(t => t.id === reportTemplate)?.description}
+                  </p>
+                  <p className="text-xs text-slate-500 mt-1">
+                    Best for: {REPORT_TEMPLATES.find(t => t.id === reportTemplate)?.bestFor}
+                  </p>
                 </div>
-              ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          <div className="border-t pt-4">
+            <h4 className="text-sm font-semibold mb-3">This template includes:</h4>
+            <div className="grid grid-cols-2 gap-2">
+              {reportTemplate === 'csrd' ? (
+                <>
+                  {['Executive Summary', 'Double Materiality Assessment', 'GHG Emissions (Scope 1/2/3)', 'ESRS Disclosures', 'Value Chain Analysis', 'Governance & Oversight', 'Forward Commitments', 'Compliance Checklist'].map((feature) => (
+                    <div key={feature} className="flex items-center gap-2 text-sm">
+                      <CheckCircle2 className="h-4 w-4 text-green-600" />
+                      <span>{feature}</span>
+                    </div>
+                  ))}
+                </>
+              ) : reportTemplate === 'gri' ? (
+                <>
+                  {['GRI Universal Standards', 'Materiality Assessment', 'Topic-specific Disclosures', 'Stakeholder Engagement', 'Management Approach', 'Performance Metrics', 'GRI Index Table', 'External Assurance'].map((feature) => (
+                    <div key={feature} className="flex items-center gap-2 text-sm">
+                      <CheckCircle2 className="h-4 w-4 text-green-600" />
+                      <span>{feature}</span>
+                    </div>
+                  ))}
+                </>
+              ) : reportTemplate === 'sasb' ? (
+                <>
+                  {['Industry Materiality Map', 'Financial Material Topics', 'Quantifiable Metrics', 'Disclosure Framework', 'Peer Comparison', 'Risk Assessment', 'Industry Benchmarks', 'ISSB Alignment'].map((feature) => (
+                    <div key={feature} className="flex items-center gap-2 text-sm">
+                      <CheckCircle2 className="h-4 w-4 text-green-600" />
+                      <span>{feature}</span>
+                    </div>
+                  ))}
+                </>
+              ) : reportTemplate === 'sdg' ? (
+                <>
+                  {['SDG Priority Mapping', 'Impact Metrics', 'Contribution Claims', 'Baseline & Targets', 'Progress Indicators', 'SDG Index Alignment', 'Theory of Change', 'Stakeholder Stories'].map((feature) => (
+                    <div key={feature} className="flex items-center gap-2 text-sm">
+                      <CheckCircle2 className="h-4 w-4 text-green-600" />
+                      <span>{feature}</span>
+                    </div>
+                  ))}
+                </>
+              ) : (
+                <>
+                  {['Executive Summary', 'Key Metrics Analysis', 'Sustainability Goals', 'Strategic Initiatives', 'Stakeholder Impact', 'Governance Overview', 'Forward Commitments', 'Framework Alignment'].map((feature) => (
+                    <div key={feature} className="flex items-center gap-2 text-sm">
+                      <CheckCircle2 className="h-4 w-4 text-green-600" />
+                      <span>{feature}</span>
+                    </div>
+                  ))}
+                </>
+              )}
             </div>
           </div>
 

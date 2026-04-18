@@ -8,6 +8,7 @@ import { z } from "zod"
 
 const generateReportSchema = z.object({
   reportPeriod: z.enum(['monthly', 'quarterly', 'annual']),
+  template: z.enum(['general', 'csrd', 'gri', 'sasb', 'sdg']).default('general'),
   startDate: z.string().transform(str => new Date(str)),
   endDate: z.string().transform(str => new Date(str)),
   focusAreas: z.array(z.string()).optional()
@@ -76,6 +77,7 @@ export async function POST(request: NextRequest) {
         metadata: {
           generatedAt: new Date().toISOString(),
           period: validatedData.reportPeriod,
+          template: validatedData.template,
           dateRange: {
             start: validatedData.startDate.toISOString(),
             end: validatedData.endDate.toISOString()

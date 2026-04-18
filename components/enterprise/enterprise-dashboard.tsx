@@ -29,8 +29,37 @@ import {
   ShieldCheck,
   Loader2,
   Trash2,
-  RefreshCw
+  RefreshCw,
+  Home,
+  Leaf,
+  FileText,
+  Settings,
+  Database,
+  Download,
+  ChevronDown,
+  User,
+  LogOut,
 } from "lucide-react"
+import { CarbonEmissionsDashboard } from "@/components/carbon-emissions-dashboard"
+import { FormalReportGenerator } from "@/components/formal-report-generator"
+import { cn } from "@/lib/utils"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+
+type ViewType = "overview" | "carbon" | "reports" | "settings"
+
+const SIDEBAR_ITEMS = [
+  { icon: Home, label: "Overview", value: "overview" as ViewType },
+  { icon: Leaf, label: "Carbon Emissions", value: "carbon" as ViewType },
+  { icon: FileText, label: "Reports", value: "reports" as ViewType },
+  { icon: Settings, label: "Settings", value: "settings" as ViewType },
+]
 
 // --- Types ---
 interface DashboardData {
@@ -248,6 +277,7 @@ const QuickLogModal = ({ isOpen, onClose, organizationId }: { isOpen: boolean, o
 export default function EnterpriseDashboard({ data, organizationId = 1 }: { data: DashboardData, organizationId?: number }) {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isClearing, setIsClearing] = useState(false)
+  const [activeView, setActiveView] = useState<ViewType>("overview")
   const { metrics, recentLogs, chartData } = data
 
   const handleClearData = async () => {
@@ -287,6 +317,26 @@ export default function EnterpriseDashboard({ data, organizationId = 1 }: { data
           </div>
           
           <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              {SIDEBAR_ITEMS.map((item) => {
+                const Icon = item.icon
+                return (
+                  <button
+                    key={item.value}
+                    onClick={() => setActiveView(item.value as ViewType)}
+                    className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-[10px] font-mono uppercase tracking-wider transition-colors ${
+                      activeView === item.value
+                        ? 'bg-white text-black'
+                        : 'text-white/40 hover:text-white hover:bg-white/10'
+                    }`}
+                  >
+                    <Icon className="w-3 h-3" />
+                    {item.label}
+                  </button>
+                )
+              })}
+            </div>
+            <div className="h-4 w-px bg-white/10" />
             <div className="flex items-center gap-2 text-[10px] font-mono text-green-400">
               <Activity className="w-3 h-3" />
               SYSTEM ONLINE
@@ -317,105 +367,112 @@ export default function EnterpriseDashboard({ data, organizationId = 1 }: { data
 
       {/* Main Content */}
       <main className="container mx-auto px-6 py-8">
-        {/* KPI Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          <MetricCard title="Total Carbon" value={metrics.totalCarbon.toFixed(1)} unit="kg CO2e" icon={Activity} trend="+12% vs last week" />
-          <MetricCard title="Volume Moved" value={metrics.totalWeight.toFixed(1)} unit="tons" icon={Package} trend="+8 shipments" />
-          <MetricCard title="Carbon Intensity" value={metrics.carbonIntensity.toFixed(1)} unit="kg/ton" icon={TrendingDown} trend="-5% efficiency" />
-          <MetricCard title="Shipments" value={metrics.shipmentCount} unit="total" icon={Truck} trend="All verified" />
-        </div>
+        {activeView === "overview" && (
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+              <MetricCard title="Total Carbon" value={metrics.totalCarbon.toFixed(1)} unit="kg CO2e" icon={Activity} trend="+12% vs last week" />
+              <MetricCard title="Volume Moved" value={metrics.totalWeight.toFixed(1)} unit="tons" icon={Package} trend="+8 shipments" />
+              <MetricCard title="Carbon Intensity" value={metrics.carbonIntensity.toFixed(1)} unit="kg/ton" icon={TrendingDown} trend="-5% efficiency" />
+              <MetricCard title="Shipments" value={metrics.shipmentCount} unit="total" icon={Truck} trend="All verified" />
+            </div>
 
-        {/* Main Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Chart */}
-          <Card className="lg:col-span-2 border-white/10 bg-black/40 backdrop-blur-sm">
-            <CardHeader>
-              <CardTitle className="text-sm font-mono uppercase tracking-wider text-white/60">Emission Trend</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="h-[300px] w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={chartData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" />
-                    <XAxis dataKey="date" tick={{ fill: '#ffffff40', fontSize: 10, fontFamily: 'monospace' }} axisLine={{ stroke: '#ffffff10' }} />
-                    <YAxis tick={{ fill: '#ffffff40', fontSize: 10, fontFamily: 'monospace' }} axisLine={{ stroke: '#ffffff10' }} />
-                    <Tooltip 
-                      contentStyle={{ 
-                        backgroundColor: '#000', 
-                        border: '1px solid #ffffff20', 
-                        borderRadius: '8px',
-                        fontFamily: 'monospace',
-                        fontSize: '10px'
-                      }}
-                    />
-                    <Bar dataKey="carbon" fill="#ffffff" radius={[4, 4, 0, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Recent Activity */}
-          <Card className="border-white/10 bg-black/40 backdrop-blur-sm">
-            <CardHeader>
-              <CardTitle className="text-sm font-mono uppercase tracking-wider text-white/60">Recent Shipments</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {recentLogs.length === 0 ? (
-                  <div className="text-center py-10 text-white/30 font-mono text-xs">
-                    No shipments logged yet.
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <Card className="lg:col-span-2 border-white/10 bg-black/40 backdrop-blur-sm">
+                <CardHeader>
+                  <CardTitle className="text-sm font-mono uppercase tracking-wider text-white/60">Emission Trend</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="h-[300px] w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={chartData}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" />
+                        <XAxis dataKey="date" tick={{ fill: '#ffffff40', fontSize: 10, fontFamily: 'monospace' }} axisLine={{ stroke: '#ffffff10' }} />
+                        <YAxis tick={{ fill: '#ffffff40', fontSize: 10, fontFamily: 'monospace' }} axisLine={{ stroke: '#ffffff10' }} />
+                        <Tooltip 
+                          contentStyle={{ 
+                            backgroundColor: '#000', 
+                            border: '1px solid #ffffff20', 
+                            borderRadius: '8px',
+                            fontFamily: 'monospace',
+                            fontSize: '10px'
+                          }}
+                        />
+                        <Bar dataKey="carbon" fill="#ffffff" radius={[4, 4, 0, 0]} />
+                      </BarChart>
+                    </ResponsiveContainer>
                   </div>
-                ) : (
-                  recentLogs.map((log, i) => (
-                    <motion.div
-                      key={log.id}
-                      initial={{ opacity: 0, x: -10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: i * 0.05 }}
-                      className="flex items-center justify-between p-3 rounded-lg bg-white/5 border border-white/5 hover:border-white/10 transition-colors"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center">
-                          {log.transportMode === 'truck' && <Truck className="w-4 h-4" />}
-                          {log.transportMode === 'ship' && <Ship className="w-4 h-4" />}
-                          {log.transportMode === 'air' && <Plane className="w-4 h-4" />}
-                          {log.transportMode === 'rail' && <Train className="w-4 h-4" />}
-                        </div>
-                        <div>
-                          <div className="text-sm font-medium">{log.commodityType}</div>
-                          <div className="text-[10px] font-mono text-white/40">{log.weight} tons</div>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <div className="text-sm font-mono">{log.carbonEmitted.toFixed(1)}</div>
-                        <div className="text-[10px] font-mono text-white/40">kg CO2e</div>
-                      </div>
-                    </motion.div>
-                  ))
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+                </CardContent>
+              </Card>
 
-        {/* Status Bar */}
-        <div className="mt-8 flex items-center justify-between px-4 py-3 rounded-lg bg-white/5 border border-white/10">
-          <div className="flex items-center gap-6 text-[10px] font-mono text-white/40 uppercase tracking-wider">
-            <span>Last Sync: Just now</span>
-            <span>•</span>
-            <span>Data Stream: Active</span>
-            <span>•</span>
-            <span>Nodes: 3/3 Online</span>
+              <Card className="border-white/10 bg-black/40 backdrop-blur-sm">
+                <CardHeader>
+                  <CardTitle className="text-sm font-mono uppercase tracking-wider text-white/60">Recent Shipments</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {recentLogs.length === 0 ? (
+                      <div className="text-center py-10 text-white/30 font-mono text-xs">
+                        No shipments logged yet.
+                      </div>
+                    ) : (
+                      recentLogs.map((log, i) => (
+                        <motion.div
+                          key={log.id}
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: i * 0.05 }}
+                          className="flex items-center justify-between p-3 rounded-lg bg-white/5 border border-white/5 hover:border-white/10 transition-colors"
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center">
+                              {log.transportMode === 'truck' && <Truck className="w-4 h-4" />}
+                              {log.transportMode === 'ship' && <Ship className="w-4 h-4" />}
+                              {log.transportMode === 'air' && <Plane className="w-4 h-4" />}
+                              {log.transportMode === 'rail' && <Train className="w-4 h-4" />}
+                            </div>
+                            <div>
+                              <div className="text-sm font-medium">{log.commodityType}</div>
+                              <div className="text-[10px] font-mono text-white/40">{log.weight} tons</div>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <div className="text-sm font-mono">{log.carbonEmitted.toFixed(1)}</div>
+                            <div className="text-[10px] font-mono text-white/40">kg CO2e</div>
+                          </div>
+                        </motion.div>
+                      ))
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            <div className="mt-8 flex items-center justify-between px-4 py-3 rounded-lg bg-white/5 border border-white/10">
+              <div className="flex items-center gap-6 text-[10px] font-mono text-white/40 uppercase tracking-wider">
+                <span>Last Sync: Just now</span>
+                <span>•</span>
+                <span>Data Stream: Active</span>
+                <span>•</span>
+                <span>Nodes: 3/3 Online</span>
+              </div>
+              <div className="flex items-center gap-2 text-[10px] font-mono text-green-400">
+                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+                All Systems Operational
+              </div>
+            </div>
+          </>
+        )}
+
+        {activeView === "carbon" && <CarbonEmissionsDashboard />}
+        {activeView === "reports" && <FormalReportGenerator />}
+        {activeView === "settings" && (
+          <div className="text-white">
+            <h2 className="text-xl font-mono uppercase tracking-wider">Settings</h2>
+            <p className="text-white/40 mt-4">Dashboard configuration options coming soon.</p>
           </div>
-          <div className="flex items-center gap-2 text-[10px] font-mono text-green-400">
-            <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-            All Systems Operational
-          </div>
-        </div>
+        )}
       </main>
 
-      {/* Quick Log Modal */}
       <QuickLogModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} organizationId={organizationId} />
     </div>
   )

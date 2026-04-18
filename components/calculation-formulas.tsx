@@ -2,7 +2,76 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
-import { Calculator, Target, TrendingUp, Users, BarChart3 } from "lucide-react"
+import { Calculator, Target, TrendingUp, Users, BarChart3, Leaf, Footprints, Car } from "lucide-react"
+
+const EMISSION_FACTORS = {
+  scope1: {
+    natural_gas: 2.0, // kg CO2e per m³
+    diesel: 2.68, // kg CO2e per liter
+    gasoline: 2.31, // kg CO2e per liter
+    propane: 1.51, // kg CO2e per liter
+  },
+  scope2: {
+    electricity: 0.42, // kg CO2e per kWh (average grid)
+    grid_renewable: 0, // kg CO2e per kWh
+  },
+  scope3: {
+    car_commute: 0.21, // kg CO2e per km
+    bus: 0.089, // kg CO2e per km per passenger
+    train: 0.041, // kg CO2e per km per passenger
+    flight_short: 0.255, // kg CO2e per km
+    flight_long: 0.195, // kg CO2e per km
+    freight_truck: 0.105, // kg CO2e per ton-km
+    freight_ship: 0.016, // kg CO2e per ton-km
+    freight_rail: 0.022, // kg CO2e per ton-km
+    water: 0.001, // kg CO2e per liter
+  },
+  commuting: {
+    car: 0.21, // kg CO2e per km (average gasoline)
+    motorcycle: 0.1, // kg CO2e per km
+    taxi: 0.25, // kg CO2e per km
+    bus: 0.089, // kg CO2e per km
+    train: 0.041, // kg CO2e per km
+    walk: 0, // kg CO2e per km
+    bike: 0, // kg CO2e per km
+    electric_vehicle: 0.053, // kg CO2e per km (grid average)
+    public_transit: 0.065, // kg CO2e per km
+  },
+}
+
+const carbonEmissionFormulas = [
+  {
+    scope: "Scope 1",
+    description: "Direct emissions from owned or controlled sources",
+    formula: "Emissions = Fuel Quantity (units) × Emission Factor (kg CO2e/unit)",
+    examples: [
+      { category: "Natural Gas", calculation: "1,000 m³ × 2.0 kg CO2e/m³ = 2,000 kg CO2e", emissionFactor: "2.0 kg CO2e/m³" },
+      { category: "Diesel Vehicles", calculation: "500 liters × 2.68 kg CO2e/L = 1,340 kg CO2e", emissionFactor: "2.68 kg CO2e/L" },
+      { category: "Company Fleet", calculation: "10,000 km × 0.21 kg CO2e/km = 2,100 kg CO2e", emissionFactor: "0.21 kg CO2e/km" },
+    ],
+  },
+  {
+    scope: "Scope 2",
+    description: "Indirect emissions from purchased electricity, steam, heating & cooling",
+    formula: "Emissions = Electricity Used (kWh) × Grid Emission Factor (kg CO2e/kWh)",
+    examples: [
+      { category: "Grid Electricity", calculation: "50,000 kWh × 0.42 kg CO2e/kWh = 21,000 kg CO2e", emissionFactor: "0.42 kg CO2e/kWh" },
+      { category: "Renewable Energy", calculation: "50,000 kWh × 0.0 kg CO2e/kWh = 0 kg CO2e", emissionFactor: "0.0 kg CO2e/kWh (RE100)" },
+      { category: "Heating/Cooling", calculation: "10,000 MJ × 0.055 kg CO2e/MJ = 550 kg CO2e", emissionFactor: "0.055 kg CO2e/MJ" },
+    ],
+  },
+  {
+    scope: "Scope 3",
+    description: "All other indirect emissions in the value chain",
+    formula: "Emissions = Activity Data (units) × Emission Factor (kg CO2e/unit)",
+    examples: [
+      { category: "Employee Commuting", calculation: "50 employees × 20 km × 240 days × 0.21 kg CO2e/km = 50,400 kg CO2e/year", emissionFactor: "0.21 kg CO2e/km" },
+      { category: "Business Travel (Flight)", calculation: "10,000 km × 0.255 kg CO2e/km = 2,550 kg CO2e", emissionFactor: "0.255 kg CO2e/km" },
+      { category: "Freight (Truck)", calculation: "50 tons × 1,000 km × 0.105 kg CO2e/ton-km = 5,250 kg CO2e", emissionFactor: "0.105 kg CO2e/ton-km" },
+      { category: "Supply Chain", calculation: "100 tons × 5,000 km × 0.016 kg CO2e/ton-km = 8,000 kg CO2e", emissionFactor: "0.016 kg CO2e/ton-km (ship)" },
+    ],
+  },
+]
 
 const sdgCalculations = [
   {
