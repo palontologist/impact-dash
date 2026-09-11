@@ -68,13 +68,13 @@ export default function FrontForumFocusDemoPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#090D14] text-slate-100 font-sans selection:bg-emerald-500/30 selection:text-emerald-200">
+    <div className="min-h-screen bg-[#090D14] text-slate-100 font-sans selection:bg-[#2E8556]/30 selection:text-emerald-200">
       {/* Top Banner / Live Provenance Tag */}
       <div className="border-b border-slate-800/80 bg-[#0d131f] px-4 py-2 text-xs text-slate-400">
         <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <span className="flex h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
-            <span className="font-mono text-emerald-400 font-medium tracking-wide">LIVE dMRV ENGINE ACTIVE</span>
+            <span className="flex h-2 w-2 rounded-full bg-[#2E8556] animate-pulse"></span>
+            <span className="font-mono text-[#5DAE74] font-medium tracking-wide">LIVE dMRV ENGINE ACTIVE</span>
             <span className="hidden sm:inline text-slate-600">|</span>
             <span className="hidden sm:inline text-slate-300">Cryptographic Inverter Telemetry</span>
           </div>
@@ -90,15 +90,15 @@ export default function FrontForumFocusDemoPage() {
       <header className="border-b border-slate-800/60 bg-[#090D14]/90 backdrop-blur-md sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-bold font-mono text-sm shadow-[0_0_15px_rgba(16,185,129,0.15)]">
-              FO3
-            </div>
-            <div>
-              <span className="font-semibold tracking-tight text-white flex items-center gap-2">
-                FrontForumFocus <span className="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-emerald-950/80 text-emerald-400 border border-emerald-800/50">Pilot Demo</span>
-              </span>
-              <p className="text-[11px] text-slate-400">Turn Clean Energy Data Into Audit-Ready Carbon Assets</p>
-            </div>
+            <Link href="/" className="flex items-center gap-2.5">
+              <img src="/logo.svg" alt="FrontForumFocus FO3 Logo" className="h-8 w-auto" />
+              <div>
+                <span className="font-semibold tracking-tight text-white flex items-center gap-2">
+                  FrontForumFocus <span className="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-[#2E8556]/20 text-emerald-300 border border-[#2E8556]/40">Pilot Demo</span>
+                </span>
+                <p className="text-[11px] text-slate-400 hidden sm:block">Turn Clean Energy Data Into Audit-Ready Carbon Assets</p>
+              </div>
+            </Link>
           </div>
 
           <div className="flex items-center gap-3">
@@ -113,7 +113,7 @@ export default function FrontForumFocusDemoPage() {
               href="https://frontforumfocus.com"
               target="_blank"
               rel="noreferrer"
-              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-md bg-emerald-500 text-slate-950 text-xs font-semibold hover:bg-emerald-400 transition shadow-[0_0_20px_rgba(16,185,129,0.3)]"
+              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-md bg-[#2E8556] text-white text-xs font-semibold hover:bg-[#267048] transition shadow-[0_0_20px_rgba(46,133,86,0.4)]"
             >
               Book 15-Min Pilot Sync
               <ArrowRight className="w-3.5 h-3.5" />
@@ -127,8 +127,8 @@ export default function FrontForumFocusDemoPage() {
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
             <div className="max-w-3xl">
-              <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-emerald-950/60 border border-emerald-800/40 text-emerald-300 text-xs font-medium mb-3">
-                <Sparkles className="w-3.5 h-3.5" />
+              <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-emerald-950/60 border border-[#2E8556]/50 text-emerald-300 text-xs font-medium mb-3">
+                <Sparkles className="w-3.5 h-3.5 text-[#5DAE74]" />
                 Zero-Friction Inverter-to-Registry Pilot Environment
               </div>
               <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-white">
@@ -146,7 +146,7 @@ export default function FrontForumFocusDemoPage() {
                 onClick={() => setPersona("operator")}
                 className={`px-3 py-1.5 rounded-lg text-xs font-medium transition ${
                   persona === "operator"
-                    ? "bg-emerald-500 text-slate-950 shadow font-semibold"
+                    ? "bg-[#2E8556] text-white shadow font-semibold"
                     : "text-slate-400 hover:text-white"
                 }`}
               >
@@ -242,10 +242,10 @@ export default function FrontForumFocusDemoPage() {
           <div className="lg:col-span-5 p-6 rounded-2xl border border-slate-800 bg-[#0c121e] space-y-5">
             <div className="flex items-center justify-between border-b border-slate-800/80 pb-3">
               <div className="flex items-center gap-2">
-                <Sliders className="w-4 h-4 text-emerald-400" />
+                <Sliders className="w-4 h-4 text-[#5DAE74]" />
                 <h2 className="text-sm font-semibold text-white tracking-wide uppercase font-mono">Site & Inverter Config</h2>
               </div>
-              <span className="text-[11px] font-mono text-emerald-400 bg-emerald-950/70 border border-emerald-800/40 px-2 py-0.5 rounded">
+              <span className="text-[11px] font-mono text-emerald-400 bg-emerald-950/70 border border-[#2E8556]/40 px-2 py-0.5 rounded">
                 Pilot Test Profile
               </span>
             </div>
@@ -258,7 +258,7 @@ export default function FrontForumFocusDemoPage() {
                 <select
                   value={selectedInverter}
                   onChange={(e) => setSelectedInverter(e.target.value)}
-                  className="w-full bg-[#131b2c] border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500"
+                  className="w-full bg-[#131b2c] border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-[#2E8556]"
                 >
                   <option value="Growatt MAX 100-125KTL3">Growatt MAX 100-125KTL3 (Direct Inverter API)</option>
                   <option value="SMA Sunny Tripower CORE2">SMA Sunny Tripower CORE2</option>
@@ -272,7 +272,7 @@ export default function FrontForumFocusDemoPage() {
               <div>
                 <div className="flex justify-between text-xs text-slate-300 mb-1">
                   <span>Installed Array Capacity:</span>
-                  <span className="font-mono font-bold text-emerald-400">{capacityKW} kWp</span>
+                  <span className="font-mono font-bold text-[#5DAE74]">{capacityKW} kWp</span>
                 </div>
                 <input
                   type="range"
@@ -281,7 +281,7 @@ export default function FrontForumFocusDemoPage() {
                   step="10"
                   value={capacityKW}
                   onChange={(e) => setCapacityKW(Number(e.target.value))}
-                  className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-emerald-400"
+                  className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-[#2E8556]"
                 />
                 <div className="flex justify-between text-[10px] font-mono text-slate-400 mt-1">
                   <span>20 kW (Mini-grid)</span>
@@ -335,7 +335,7 @@ export default function FrontForumFocusDemoPage() {
 
             <div className="p-3.5 rounded-xl bg-[#090e18] border border-slate-800/80 space-y-2">
               <div className="text-[11px] font-semibold text-slate-300 uppercase tracking-wider font-mono flex items-center gap-1.5">
-                <Lock className="w-3.5 h-3.5 text-emerald-400" />
+                <Lock className="w-3.5 h-3.5 text-[#5DAE74]" />
                 dMRV Verification Method
               </div>
               <p className="text-[11px] text-slate-400 leading-relaxed">
@@ -376,16 +376,16 @@ export default function FrontForumFocusDemoPage() {
                 <div>
                   <div className="flex justify-between text-xs mb-1.5">
                     <span className="text-emerald-300 font-semibold flex items-center gap-1.5">
-                      <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
+                      <Sparkles className="w-3.5 h-3.5 text-[#5DAE74]" />
                       FrontForumFocus Verified dMRV Credits ($32/ton premium)
                     </span>
                     <span className="font-mono text-emerald-400 font-bold text-sm">
                       ${dmrvPremiumRevenueUSD.toLocaleString(undefined, { maximumFractionDigits: 0 })} / yr
                     </span>
                   </div>
-                  <div className="w-full bg-slate-800 h-4 rounded-full overflow-hidden border border-emerald-500/40 p-0.5">
+                  <div className="w-full bg-slate-800 h-4 rounded-full overflow-hidden border border-[#2E8556]/60 p-0.5">
                     <div
-                      className="bg-gradient-to-r from-emerald-500 to-cyan-400 h-full rounded-full transition-all duration-500"
+                      className="bg-gradient-to-r from-[#2E8556] to-cyan-400 h-full rounded-full transition-all duration-500"
                       style={{ width: "100%" }}
                     ></div>
                   </div>
@@ -439,12 +439,12 @@ export default function FrontForumFocusDemoPage() {
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/80 pb-3">
             <div>
               <h2 className="text-sm font-semibold text-white tracking-wide uppercase font-mono flex items-center gap-2">
-                <Cpu className="w-4 h-4 text-emerald-400" />
+                <Cpu className="w-4 h-4 text-[#5DAE74]" />
                 Live Inverter Telemetry Stream & Hash Proof
               </h2>
               <p className="text-xs text-slate-400 mt-0.5">Streaming 10-second pulse records from pilot solar inverters with SHA-256 signature hashes.</p>
             </div>
-            <span className="flex items-center gap-1.5 text-xs text-emerald-400 font-mono bg-emerald-950/60 border border-emerald-800/40 px-2.5 py-1 rounded-full">
+            <span className="flex items-center gap-1.5 text-xs text-emerald-400 font-mono bg-emerald-950/60 border border-[#2E8556]/40 px-2.5 py-1 rounded-full">
               <RefreshCw className="w-3 h-3 animate-spin text-emerald-400" />
               Live Ingesting
             </span>
@@ -473,7 +473,7 @@ export default function FrontForumFocusDemoPage() {
                     <td className="py-2.5 px-3 text-emerald-400">{log.co2Offset}</td>
                     <td className="py-2.5 px-3 text-slate-500 font-mono">{log.hash}</td>
                     <td className="py-2.5 px-3">
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-emerald-950/80 text-emerald-400 border border-emerald-800/50 text-[10px]">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-emerald-950/80 text-emerald-400 border border-[#2E8556]/50 text-[10px]">
                         <Check className="w-2.5 h-2.5" />
                         {log.status}
                       </span>
@@ -488,7 +488,7 @@ export default function FrontForumFocusDemoPage() {
         {/* 4. Persona Callout / Value Propositions */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="p-5 rounded-xl border border-slate-800/80 bg-[#0c121e]">
-            <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 mb-3">
+            <div className="w-8 h-8 rounded-lg bg-[#2E8556]/15 border border-[#2E8556]/30 flex items-center justify-center text-[#5DAE74] mb-3">
               <Zap className="w-4 h-4" />
             </div>
             <h3 className="text-sm font-semibold text-white">For Clean Energy Developers</h3>
@@ -519,7 +519,7 @@ export default function FrontForumFocusDemoPage() {
         </div>
 
         {/* 5. Sticky Bottom Action Bar for Outreach Leads */}
-        <div className="p-6 rounded-2xl border border-emerald-500/30 bg-gradient-to-r from-[#0d1e1c] via-[#0c1626] to-[#0c121e] flex flex-col sm:flex-row items-center justify-between gap-6 shadow-[0_0_30px_rgba(16,185,129,0.1)]">
+        <div className="p-6 rounded-2xl border border-[#2E8556]/40 bg-gradient-to-r from-[#0d1e1c] via-[#0c1626] to-[#0c121e] flex flex-col sm:flex-row items-center justify-between gap-6 shadow-[0_0_30px_rgba(46,133,86,0.15)]">
           <div className="space-y-1 text-center sm:text-left">
             <h3 className="text-base font-bold text-white">Ready to connect 1–2 test sites to FrontForumFocus?</h3>
             <p className="text-xs text-slate-300">
@@ -529,7 +529,7 @@ export default function FrontForumFocusDemoPage() {
           <div className="flex items-center gap-3 w-full sm:w-auto">
             <a
               href="mailto:george.karani@startupgrind.com?subject=FrontForumFocus%20dMRV%20Pilot%20Inquiry"
-              className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold transition flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(16,185,129,0.3)]"
+              className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-[#2E8556] hover:bg-[#267048] text-white text-xs font-bold transition flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(46,133,86,0.4)]"
             >
               Request Pilot Deployment
               <ArrowRight className="w-4 h-4" />
