@@ -19,19 +19,19 @@ import {
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-[#090D14] text-slate-100 font-sans selection:bg-emerald-500/30 selection:text-emerald-200">
+    <div className="min-h-screen bg-[#090D14] text-slate-100 font-sans selection:bg-[#2E8556]/30 selection:text-emerald-200">
       {/* Top Banner */}
       <div className="border-b border-slate-800/80 bg-[#0d131f] px-4 py-2 text-xs text-slate-400">
         <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <span className="flex h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
-            <span className="font-mono text-emerald-400 font-medium tracking-wide">FRONTFORUMFOCUS IMPACT ENGINE</span>
+            <span className="flex h-2 w-2 rounded-full bg-[#2E8556] animate-pulse"></span>
+            <span className="font-mono text-[#5DAE74] font-medium tracking-wide">FRONTFORUMFOCUS IMPACT ENGINE</span>
             <span className="hidden sm:inline text-slate-600">|</span>
             <span className="hidden sm:inline text-slate-300">Automated dMRV for Clean Energy Infrastructure</span>
           </div>
           <Link
             href="/demo"
-            className="flex items-center gap-1.5 text-[11px] font-mono text-emerald-400 hover:text-emerald-300 transition"
+            className="flex items-center gap-1.5 text-[11px] font-mono text-[#5DAE74] hover:text-emerald-300 transition"
           >
             <span>Explore Interactive Live Demo</span>
             <ArrowRight className="w-3 h-3" />
@@ -43,28 +43,28 @@ export default function HomePage() {
       <header className="border-b border-slate-800/60 bg-[#090D14]/90 backdrop-blur-md sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-bold font-mono text-sm shadow-[0_0_15px_rgba(16,185,129,0.15)]">
-              FO3
-            </div>
-            <div>
-              <span className="font-semibold tracking-tight text-white flex items-center gap-2">
-                FrontForumFocus <span className="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">Verifiable Impact</span>
-              </span>
-              <p className="text-[11px] text-slate-400 hidden sm:block">Turn clean energy data into audit-ready carbon assets</p>
-            </div>
+            <Link href="/" className="flex items-center gap-2.5">
+              <img src="/logo.svg" alt="FrontForumFocus FO3 Logo" className="h-8 w-auto" />
+              <div>
+                <span className="font-semibold tracking-tight text-white flex items-center gap-2">
+                  FrontForumFocus <span className="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">dMRV Layer</span>
+                </span>
+                <p className="text-[11px] text-slate-400 hidden sm:block">Turn clean energy data into audit-ready carbon assets</p>
+              </div>
+            </Link>
           </div>
 
           <div className="flex items-center gap-3">
             <Link
               href="/demo"
-              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-md border border-emerald-500/40 bg-emerald-950/40 text-emerald-300 text-xs font-semibold hover:bg-emerald-900/60 transition"
+              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-md border border-[#2E8556]/50 bg-[#2E8556]/15 text-emerald-300 text-xs font-semibold hover:bg-[#2E8556]/25 transition"
             >
-              <Activity className="w-3.5 h-3.5 text-emerald-400" />
+              <Activity className="w-3.5 h-3.5 text-[#5DAE74]" />
               <span>Launch Live Demo</span>
             </Link>
             <a
               href="mailto:george.karani@startupgrind.com?subject=FrontForumFocus%20Pilot%20Inquiry"
-              className="hidden sm:flex items-center gap-1.5 px-3.5 py-1.5 rounded-md bg-emerald-500 text-slate-950 text-xs font-semibold hover:bg-emerald-400 transition shadow-[0_0_20px_rgba(16,185,129,0.3)]"
+              className="hidden sm:flex items-center gap-1.5 px-3.5 py-1.5 rounded-md bg-[#2E8556] text-white text-xs font-semibold hover:bg-[#267048] transition shadow-[0_0_20px_rgba(46,133,86,0.4)]"
             >
               Book 15-Min Pilot Sync
             </a>
@@ -77,8 +77,8 @@ export default function HomePage() {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_var(--tw-gradient-stops))] from-emerald-900/20 via-transparent to-transparent pointer-events-none"></div>
 
         <div className="max-w-5xl mx-auto text-center space-y-6 relative z-10">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-950/80 border border-emerald-800/50 text-emerald-300 text-xs font-medium font-mono">
-            <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-950/80 border border-[#2E8556]/50 text-emerald-300 text-xs font-medium font-mono">
+            <Sparkles className="w-3.5 h-3.5 text-[#5DAE74]" />
             Zero-Hardware Inverter dMRV Platform
           </div>
 
@@ -96,7 +96,7 @@ export default function HomePage() {
           <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
               href="/demo"
-              className="w-full sm:w-auto px-7 py-3.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-sm font-bold transition flex items-center justify-center gap-2 shadow-[0_0_30px_rgba(16,185,129,0.35)]"
+              className="w-full sm:w-auto px-7 py-3.5 rounded-xl bg-[#2E8556] hover:bg-[#267048] text-white text-sm font-bold transition flex items-center justify-center gap-2 shadow-[0_0_30px_rgba(46,133,86,0.4)]"
             >
               <Activity className="w-4 h-4" />
               Try Interactive Pilot Demo
@@ -140,7 +140,7 @@ export default function HomePage() {
       {/* How Physical Telemetry Becomes Bankable Capital */}
       <section className="py-20 px-4 sm:px-6 max-w-7xl mx-auto">
         <div className="text-center max-w-3xl mx-auto mb-14 space-y-3">
-          <span className="text-xs font-mono font-semibold uppercase tracking-wider text-emerald-400 bg-emerald-950/80 border border-emerald-800/40 px-3 py-1 rounded-full">
+          <span className="text-xs font-mono font-semibold uppercase tracking-wider text-emerald-400 bg-emerald-950/80 border border-[#2E8556]/40 px-3 py-1 rounded-full">
             The 3-Step dMRV Pipeline
           </span>
           <h2 className="text-2xl sm:text-3xl font-bold text-white">How Telemetry Becomes Bankable Capital</h2>
@@ -151,7 +151,7 @@ export default function HomePage() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="p-6 rounded-2xl border border-slate-800 bg-[#0c121e] space-y-4 hover:border-slate-700 transition">
-            <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+            <div className="w-10 h-10 rounded-xl bg-[#2E8556]/15 border border-[#2E8556]/30 flex items-center justify-center text-[#5DAE74]">
               <Zap className="w-5 h-5" />
             </div>
             <h3 className="text-lg font-bold text-white">1. Direct Telemetry</h3>
@@ -203,7 +203,7 @@ export default function HomePage() {
 
           <Link
             href="/demo"
-            className="px-6 py-4 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-bold text-sm flex items-center gap-2 shadow-[0_0_25px_rgba(16,185,129,0.3)] shrink-0 transition"
+            className="px-6 py-4 rounded-xl bg-gradient-to-r from-[#2E8556] to-teal-500 hover:from-[#267048] hover:to-teal-400 text-white font-bold text-sm flex items-center gap-2 shadow-[0_0_25px_rgba(46,133,86,0.4)] shrink-0 transition"
           >
             Launch Interactive Demo
             <ArrowRight className="w-4 h-4" />
@@ -214,7 +214,7 @@ export default function HomePage() {
       {/* Pricing & Pilot Packages */}
       <section className="py-20 px-4 sm:px-6 max-w-7xl mx-auto">
         <div className="text-center max-w-3xl mx-auto mb-14 space-y-3">
-          <span className="text-xs font-mono font-semibold uppercase tracking-wider text-emerald-400 bg-emerald-950/80 border border-emerald-800/40 px-3 py-1 rounded-full">
+          <span className="text-xs font-mono font-semibold uppercase tracking-wider text-emerald-400 bg-emerald-950/80 border border-[#2E8556]/40 px-3 py-1 rounded-full">
             Transparent Deployment Tiers
           </span>
           <h2 className="text-2xl sm:text-3xl font-bold text-white">Pricing & Pilot Deployment</h2>
@@ -225,9 +225,9 @@ export default function HomePage() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Pilot Package */}
-          <div className="p-8 rounded-2xl border-2 border-emerald-500/80 bg-[#0c1626] relative space-y-6 shadow-[0_0_30px_rgba(16,185,129,0.15)] flex flex-col justify-between">
+          <div className="p-8 rounded-2xl border-2 border-[#2E8556] bg-[#0c1626] relative space-y-6 shadow-[0_0_30px_rgba(46,133,86,0.2)] flex flex-col justify-between">
             <div className="space-y-4">
-              <div className="inline-block px-2.5 py-0.5 rounded bg-emerald-500 text-slate-950 text-[11px] font-bold uppercase font-mono">
+              <div className="inline-block px-2.5 py-0.5 rounded bg-[#2E8556] text-white text-[11px] font-bold uppercase font-mono">
                 Most Popular for New Pilots
               </div>
               <h3 className="text-xl font-bold text-white">Initial Pilot Tier</h3>
@@ -249,7 +249,7 @@ export default function HomePage() {
 
             <a
               href="mailto:george.karani@startupgrind.com?subject=Deploy%20%24500%2Fmo%20FrontForumFocus%20Pilot"
-              className="w-full py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs text-center transition block shadow-[0_0_15px_rgba(16,185,129,0.25)]"
+              className="w-full py-3 rounded-xl bg-[#2E8556] hover:bg-[#267048] text-white font-bold text-xs text-center transition block shadow-[0_0_15px_rgba(46,133,86,0.3)]"
             >
               Start $500/mo Pilot
             </a>
@@ -315,9 +315,7 @@ export default function HomePage() {
       <footer className="border-t border-slate-800/80 bg-[#070b12] py-12 px-4 sm:px-6 text-xs text-slate-400">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-3">
-            <div className="flex h-7 w-7 items-center justify-center rounded bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-mono font-bold text-xs">
-              FO3
-            </div>
+            <img src="/logo.svg" alt="FO3 Logo" className="h-6 w-auto" />
             <span>FrontForumFocus — The Intelligence Layer for Verifiable Impact</span>
           </div>
           <div className="flex items-center gap-6">
