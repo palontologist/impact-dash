@@ -25,7 +25,10 @@ import {
   Calendar,
   Clock,
   Check,
-  AlertCircle
+  AlertCircle,
+  Users,
+  Award,
+  Wallet
 } from "lucide-react";
 
 export default function FrontForumFocusDemoPage() {
@@ -52,7 +55,11 @@ export default function FrontForumFocusDemoPage() {
   const dailyKWh = capacityKW * sunHours;
   const annualMWh = (dailyKWh * 365) / 1000;
   const annualAvoidedTonsCO2 = (annualMWh * 1000 * gridFactor) / 1000;
-  
+  const dieselLitersOffset = annualAvoidedTonsCO2 * 380;
+  const productiveUseMWh = annualMWh * 0.68;
+  const householdsConnected = Math.round(annualMWh * 2.8);
+  const microEnterprisesPowered = Math.round(capacityKW * 0.45);
+
   // Pricing: Standard credit ($8/t) vs FrontForumFocus dMRV Premium ($32/t)
   const standardRevenueUSD = annualAvoidedTonsCO2 * 8;
   const dmrvPremiumRevenueUSD = annualAvoidedTonsCO2 * 32;
@@ -67,6 +74,102 @@ export default function FrontForumFocusDemoPage() {
     { time: "12s ago", deviceId: "BAT-STOR-002", kw: "45.0 kW", v: "48.2 V", co2Offset: "32.4 kg/hr", hash: "0x77c2...55b1", status: "VERIFIED" },
   ];
 
+  // Dynamic persona-driven stats configuration
+  const personaStats = {
+    operator: [
+      {
+        title: "Clean Generation Yield",
+        value: `${annualMWh.toFixed(1)} MWh/yr`,
+        subtext: `${dailyKWh.toFixed(0)} kWh/day generated`,
+        icon: <Zap className="w-4 h-4 text-amber-400" />,
+        highlightColor: "text-white"
+      },
+      {
+        title: "Diesel Fuel Replaced",
+        value: `${Math.round(dieselLitersOffset).toLocaleString()} L/yr`,
+        subtext: `${annualAvoidedTonsCO2.toFixed(1)} tCO₂e avoided`,
+        icon: <ShieldCheck className="w-4 h-4 text-[#5DAE74]" />,
+        highlightColor: "text-emerald-400"
+      },
+      {
+        title: "Unlocked Carbon Cashflow",
+        value: `$${dmrvPremiumRevenueUSD.toLocaleString(undefined, { maximumFractionDigits: 0 })}/yr`,
+        subtext: `+$${unlockedUpsideUSD.toLocaleString(undefined, { maximumFractionDigits: 0 })} premium over spot`,
+        icon: <TrendingUp className="w-4 h-4 text-cyan-400" />,
+        highlightColor: "text-cyan-400"
+      },
+      {
+        title: "Reporting Overhead",
+        value: "0 Spreadsheets",
+        subtext: "100% automated inverter dMRV",
+        icon: <CheckCircle2 className="w-4 h-4 text-emerald-400" />,
+        highlightColor: "text-white"
+      }
+    ],
+    carbon_buyer: [
+      {
+        title: "Certified Avoided Emissions",
+        value: `${annualAvoidedTonsCO2.toFixed(1)} tCO₂e`,
+        subtext: "UNFCCC AMS-I.F / ISO 14064-2",
+        icon: <ShieldCheck className="w-4 h-4 text-emerald-400" />,
+        highlightColor: "text-emerald-400"
+      },
+      {
+        title: "dMRV Quality Premium",
+        value: "$32.00 / ton",
+        subtext: "vs $8.00/ton opaque spot discount",
+        icon: <Award className="w-4 h-4 text-cyan-400" />,
+        highlightColor: "text-cyan-400"
+      },
+      {
+        title: "Issuance / Audit Latency",
+        value: "< 24 Hours",
+        subtext: "vs 240+ days industry average",
+        icon: <Clock className="w-4 h-4 text-purple-400" />,
+        highlightColor: "text-purple-300"
+      },
+      {
+        title: "Cryptographic Provenance",
+        value: "100% Verified",
+        subtext: "Immutable SHA-256 batch logs",
+        icon: <Lock className="w-4 h-4 text-[#5DAE74]" />,
+        highlightColor: "text-white"
+      }
+    ],
+    investor: [
+      {
+        title: "SDG 7.2 Clean Power Index",
+        value: `${annualMWh.toFixed(1)} MWh`,
+        subtext: `${householdsConnected.toLocaleString()} household equivalents`,
+        icon: <Zap className="w-4 h-4 text-amber-400" />,
+        highlightColor: "text-amber-300"
+      },
+      {
+        title: "SDG 8.4 Productive Use (PUE)",
+        value: `${productiveUseMWh.toFixed(1)} MWh`,
+        subtext: `${microEnterprisesPowered} local enterprises powered`,
+        icon: <Users className="w-4 h-4 text-cyan-400" />,
+        highlightColor: "text-cyan-300"
+      },
+      {
+        title: "SDG 13.1 Climate Mitigation",
+        value: `${annualAvoidedTonsCO2.toFixed(1)} tCO₂e`,
+        subtext: "Direct carbon abatement proof",
+        icon: <ShieldCheck className="w-4 h-4 text-emerald-400" />,
+        highlightColor: "text-emerald-400"
+      },
+      {
+        title: "Debt Covenant Status",
+        value: "100% Compliant",
+        subtext: "Continuous audit-ready DFI telemetry",
+        icon: <Wallet className="w-4 h-4 text-purple-400" />,
+        highlightColor: "text-white"
+      }
+    ]
+  };
+
+  const currentStats = personaStats[persona];
+
   return (
     <div className="min-h-screen bg-[#090D14] text-slate-100 font-sans selection:bg-[#2E8556]/30 selection:text-emerald-200">
       {/* Top Banner / Live Provenance Tag */}
@@ -76,7 +179,11 @@ export default function FrontForumFocusDemoPage() {
             <span className="flex h-2 w-2 rounded-full bg-[#2E8556] animate-pulse"></span>
             <span className="font-mono text-[#5DAE74] font-medium tracking-wide">LIVE dMRV ENGINE ACTIVE</span>
             <span className="hidden sm:inline text-slate-600">|</span>
-            <span className="hidden sm:inline text-slate-300">Cryptographic Inverter Telemetry</span>
+            <span className="hidden sm:inline text-slate-300">
+              {persona === "operator" && "Solar Inverter Telemetry Mode"}
+              {persona === "carbon_buyer" && "Carbon Registry & Verification Mode"}
+              {persona === "investor" && "Blended Finance & SDG Impact Covenant Mode"}
+            </span>
           </div>
           <div className="flex items-center gap-4 text-[11px] font-mono text-slate-400">
             <span>Audit Latency: <strong className="text-emerald-400">0 Days</strong></span>
@@ -110,32 +217,36 @@ export default function FrontForumFocusDemoPage() {
               Sample Auditor Dossier
             </button>
             <a
-              href="https://frontforumfocus.com"
-              target="_blank"
-              rel="noreferrer"
+              href="mailto:george.karani@startupgrind.com?subject=FrontForumFocus%20%24500%2Fmo%20Pilot%20Inquiry"
               className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-md bg-[#2E8556] text-white text-xs font-semibold hover:bg-[#267048] transition shadow-[0_0_20px_rgba(46,133,86,0.4)]"
             >
-              Book 15-Min Pilot Sync
+              Deploy 1–2 Sites ($500/mo)
               <ArrowRight className="w-3.5 h-3.5" />
             </a>
           </div>
         </div>
       </header>
 
-      {/* Hero / Quick Context */}
+      {/* Hero & Dynamic Persona Switcher */}
       <section className="border-b border-slate-800/60 bg-gradient-to-b from-[#0d1424] to-[#090D14] px-4 sm:px-6 py-8">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
             <div className="max-w-3xl">
               <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-emerald-950/60 border border-[#2E8556]/50 text-emerald-300 text-xs font-medium mb-3">
                 <Sparkles className="w-3.5 h-3.5 text-[#5DAE74]" />
-                Zero-Friction Inverter-to-Registry Pilot Environment
+                {persona === "operator" && "Tailored for Solar & Mini-Grid Developers (Zero Hardware Installation)"}
+                {persona === "carbon_buyer" && "Tailored for Carbon Buyers, Registries & ESG Procurement"}
+                {persona === "investor" && "Tailored for Blended Finance Facilities & Impact Debt Funds"}
               </div>
               <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-white">
-                Verifiable Clean Energy & Carbon Intelligence
+                {persona === "operator" && "Automate Inverter dMRV & Unlock 4x Carbon Revenue"}
+                {persona === "carbon_buyer" && "High-Integrity Carbon Proof with 0-Day Audit Latency"}
+                {persona === "investor" && "Continuous UN SDG Covenants for Blended Finance"}
               </h1>
               <p className="mt-2 text-sm sm:text-base text-slate-400 leading-relaxed">
-                Connect solar inverters, microgrids, and field meters to automate digital MRV (dMRV), eliminate 6–18 month audit lag, and capture premium credit pricing on global exchanges.
+                {persona === "operator" && "Connect inverters via API to eliminate manual spreadsheet MRV, generate audit-ready logs continuously, and monetize premium carbon credits."}
+                {persona === "carbon_buyer" && "Every credit is verified in real-time with granular inverter telemetry, GPS coordinates, and tamper-resistant SHA-256 cryptographic provenance."}
+                {persona === "investor" && "Automate sustainability-linked debt compliance, monitor real-time productive use energy (PUE), and disburse tranches without audit lag."}
               </p>
             </div>
 
@@ -166,7 +277,7 @@ export default function FrontForumFocusDemoPage() {
                 onClick={() => setPersona("investor")}
                 className={`px-3 py-1.5 rounded-lg text-xs font-medium transition ${
                   persona === "investor"
-                    ? "bg-indigo-500 text-slate-950 shadow font-semibold"
+                    ? "bg-indigo-500 text-white shadow font-semibold"
                     : "text-slate-400 hover:text-white"
                 }`}
               >
@@ -180,60 +291,22 @@ export default function FrontForumFocusDemoPage() {
       {/* Main Content Area */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-8">
 
-        {/* 1. Top Stat Cards (Persona-Tailored) */}
+        {/* 1. Dynamic Top Stat Cards (Persona-Driven) */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="p-4 rounded-xl border border-slate-800/80 bg-[#0c121e] relative overflow-hidden">
-            <div className="flex items-center justify-between text-slate-400 text-xs font-medium mb-1">
-              <span>Annual Clean Generation</span>
-              <Zap className="w-4 h-4 text-amber-400" />
+          {currentStats.map((stat, idx) => (
+            <div key={idx} className="p-4 rounded-xl border border-slate-800/80 bg-[#0c121e] relative overflow-hidden transition hover:border-slate-700">
+              <div className="flex items-center justify-between text-slate-400 text-xs font-medium mb-1">
+                <span>{stat.title}</span>
+                {stat.icon}
+              </div>
+              <div className={`text-2xl font-bold font-mono ${stat.highlightColor}`}>
+                {stat.value}
+              </div>
+              <div className="mt-2 flex items-center gap-1.5 text-[11px] text-slate-400 font-mono">
+                <span>{stat.subtext}</span>
+              </div>
             </div>
-            <div className="text-2xl font-bold text-white font-mono">
-              {annualMWh.toFixed(1)} <span className="text-sm font-sans font-normal text-slate-400">MWh/yr</span>
-            </div>
-            <div className="mt-2 flex items-center gap-1.5 text-[11px] text-emerald-400 font-mono">
-              <Activity className="w-3 h-3" />
-              <span>{(dailyKWh / 24).toFixed(1)} kW average continuous</span>
-            </div>
-          </div>
-
-          <div className="p-4 rounded-xl border border-slate-800/80 bg-[#0c121e] relative overflow-hidden">
-            <div className="flex items-center justify-between text-slate-400 text-xs font-medium mb-1">
-              <span>Verified Avoided Carbon</span>
-              <ShieldCheck className="w-4 h-4 text-emerald-400" />
-            </div>
-            <div className="text-2xl font-bold text-emerald-400 font-mono">
-              {annualAvoidedTonsCO2.toFixed(1)} <span className="text-sm font-sans font-normal text-slate-400">tCO₂e</span>
-            </div>
-            <div className="mt-2 flex items-center gap-1.5 text-[11px] text-slate-400 font-mono">
-              <span>Displacing {(annualAvoidedTonsCO2 * 380).toFixed(0)}L diesel fuel</span>
-            </div>
-          </div>
-
-          <div className="p-4 rounded-xl border border-slate-800/80 bg-[#0c121e] relative overflow-hidden">
-            <div className="flex items-center justify-between text-slate-400 text-xs font-medium mb-1">
-              <span>dMRV Asset Value (@ $32/t)</span>
-              <TrendingUp className="w-4 h-4 text-cyan-400" />
-            </div>
-            <div className="text-2xl font-bold text-cyan-400 font-mono">
-              ${dmrvPremiumRevenueUSD.toLocaleString(undefined, { maximumFractionDigits: 0 })}
-            </div>
-            <div className="mt-2 flex items-center gap-1.5 text-[11px] text-emerald-400 font-mono">
-              <span>+${unlockedUpsideUSD.toLocaleString(undefined, { maximumFractionDigits: 0 })} premium over opaque spot</span>
-            </div>
-          </div>
-
-          <div className="p-4 rounded-xl border border-slate-800/80 bg-[#0c121e] relative overflow-hidden">
-            <div className="flex items-center justify-between text-slate-400 text-xs font-medium mb-1">
-              <span>Issuance & Audit Latency</span>
-              <Clock className="w-4 h-4 text-purple-400" />
-            </div>
-            <div className="text-2xl font-bold text-white font-mono">
-              &lt; 24 <span className="text-sm font-sans font-normal text-slate-400">Hours</span>
-            </div>
-            <div className="mt-2 flex items-center gap-1.5 text-[11px] text-purple-300 font-mono">
-              <span>vs 240+ days manual MRV</span>
-            </div>
-          </div>
+          ))}
         </div>
 
         {/* 2. Interactive Inverter & Yield Simulator */}
@@ -246,7 +319,7 @@ export default function FrontForumFocusDemoPage() {
                 <h2 className="text-sm font-semibold text-white tracking-wide uppercase font-mono">Site & Inverter Config</h2>
               </div>
               <span className="text-[11px] font-mono text-emerald-400 bg-emerald-950/70 border border-[#2E8556]/40 px-2 py-0.5 rounded">
-                Pilot Test Profile
+                Live Calculator
               </span>
             </div>
 
@@ -260,7 +333,7 @@ export default function FrontForumFocusDemoPage() {
                   onChange={(e) => setSelectedInverter(e.target.value)}
                   className="w-full bg-[#131b2c] border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-[#2E8556]"
                 >
-                  <option value="Growatt MAX 100-125KTL3">Growatt MAX 100-125KTL3 (Direct Inverter API)</option>
+                  <option value="Growatt MAX 100-125KTL3">Growatt MAX 100-125KTL3 (Direct API)</option>
                   <option value="SMA Sunny Tripower CORE2">SMA Sunny Tripower CORE2</option>
                   <option value="Victron Energy Color Control GX">Victron Energy Color Control GX / VRM</option>
                   <option value="Huawei SUN2000 Smart PV">Huawei SUN2000 Smart PV Controller</option>
@@ -336,10 +409,10 @@ export default function FrontForumFocusDemoPage() {
             <div className="p-3.5 rounded-xl bg-[#090e18] border border-slate-800/80 space-y-2">
               <div className="text-[11px] font-semibold text-slate-300 uppercase tracking-wider font-mono flex items-center gap-1.5">
                 <Lock className="w-3.5 h-3.5 text-[#5DAE74]" />
-                dMRV Verification Method
+                dMRV Verification Standard
               </div>
               <p className="text-[11px] text-slate-400 leading-relaxed">
-                Applying <strong>UNFCCC CDM AMS-I.F</strong> microscale methodology + ISO 14064-2 standard. Direct inverter pulses verified against local irradiance satellite feeds.
+                Applying <strong>UNFCCC CDM AMS-I.F</strong> microscale methodology + ISO 14064-2. Inverter telemetry streams are anchored with block hashes for instant auditor acceptance.
               </p>
             </div>
           </div>
@@ -350,10 +423,14 @@ export default function FrontForumFocusDemoPage() {
               <div className="flex items-center justify-between border-b border-slate-800/80 pb-3">
                 <div className="flex items-center gap-2">
                   <BarChart3 className="w-4 h-4 text-cyan-400" />
-                  <h2 className="text-sm font-semibold text-white tracking-wide uppercase font-mono">Carbon Asset Monetization Engine</h2>
+                  <h2 className="text-sm font-semibold text-white tracking-wide uppercase font-mono">
+                    {persona === "operator" && "Carbon Revenue Uplift Engine"}
+                    {persona === "carbon_buyer" && "dMRV Quality Spread & Pricing Integrity"}
+                    {persona === "investor" && "Blended Finance Impact & Debt Yield"}
+                  </h2>
                 </div>
                 <span className="text-[11px] font-mono text-cyan-400 bg-cyan-950/70 border border-cyan-800/40 px-2 py-0.5 rounded">
-                  2x–4x Pricing Premium
+                  4x Asset Premium
                 </span>
               </div>
 
@@ -361,7 +438,7 @@ export default function FrontForumFocusDemoPage() {
               <div className="mt-6 space-y-5">
                 <div>
                   <div className="flex justify-between text-xs mb-1.5">
-                    <span className="text-slate-400">Opaque / Legacy Carbon Credits ($8/ton spot)</span>
+                    <span className="text-slate-400">Legacy Opaque Carbon Credits ($8/ton spot)</span>
                     <span className="font-mono text-slate-300">${standardRevenueUSD.toLocaleString(undefined, { maximumFractionDigits: 0 })} / yr</span>
                   </div>
                   <div className="w-full bg-slate-800 h-3 rounded-full overflow-hidden">
@@ -398,23 +475,23 @@ export default function FrontForumFocusDemoPage() {
               {/* UN SDG Multi-benefit Badges (Greta Engine) */}
               <div className="mt-6 pt-5 border-t border-slate-800/80">
                 <span className="text-xs font-semibold text-slate-300 uppercase tracking-wider font-mono block mb-3">
-                  Mapped UN SDG Co-Benefits (Auto-Evidenced)
+                  Auto-Evidenced UN SDG Covenants (Greta Engine)
                 </span>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <div className="p-2.5 rounded-lg bg-[#111927] border border-amber-900/30 text-xs">
                     <div className="font-bold text-amber-400 font-mono">SDG 7.2</div>
-                    <div className="text-slate-300 text-[11px] font-medium">Clean Energy Generation</div>
-                    <div className="text-[10px] text-slate-400 mt-1 font-mono">{annualMWh.toFixed(0)} MWh produced</div>
+                    <div className="text-slate-300 text-[11px] font-medium">Clean Energy Access</div>
+                    <div className="text-[10px] text-slate-400 mt-1 font-mono">{annualMWh.toFixed(0)} MWh generation</div>
                   </div>
                   <div className="p-2.5 rounded-lg bg-[#111927] border border-emerald-900/30 text-xs">
                     <div className="font-bold text-emerald-400 font-mono">SDG 13.1</div>
                     <div className="text-slate-300 text-[11px] font-medium">Climate Mitigation</div>
-                    <div className="text-[10px] text-slate-400 mt-1 font-mono">{annualAvoidedTonsCO2.toFixed(1)} tCO₂e mitigated</div>
+                    <div className="text-[10px] text-slate-400 mt-1 font-mono">{annualAvoidedTonsCO2.toFixed(1)} tCO₂e avoided</div>
                   </div>
                   <div className="p-2.5 rounded-lg bg-[#111927] border border-cyan-900/30 text-xs">
                     <div className="font-bold text-cyan-400 font-mono">SDG 8.4</div>
-                    <div className="text-slate-300 text-[11px] font-medium">Productive Use Energy</div>
-                    <div className="text-[10px] text-slate-400 mt-1 font-mono">{(annualMWh * 0.65).toFixed(0)} MWh productive load</div>
+                    <div className="text-slate-300 text-[11px] font-medium">Productive Use (PUE)</div>
+                    <div className="text-[10px] text-slate-400 mt-1 font-mono">{productiveUseMWh.toFixed(0)} MWh PUE load</div>
                   </div>
                 </div>
               </div>
@@ -422,7 +499,7 @@ export default function FrontForumFocusDemoPage() {
 
             {/* Quick Action */}
             <div className="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-slate-800/80">
-              <span className="text-xs text-slate-400">Want this dMRV layer on your 1–2 pilot sites?</span>
+              <span className="text-xs text-slate-400">Ready to pilot dMRV on 1–2 test sites?</span>
               <button
                 onClick={() => setIsAuditorModalOpen(true)}
                 className="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-medium text-slate-200 flex items-center gap-1.5 transition"
@@ -487,7 +564,7 @@ export default function FrontForumFocusDemoPage() {
 
         {/* 4. Persona Callout / Value Propositions */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="p-5 rounded-xl border border-slate-800/80 bg-[#0c121e]">
+          <div className={`p-5 rounded-xl border transition ${persona === "operator" ? "border-[#2E8556] bg-[#0c1822] shadow-[0_0_20px_rgba(46,133,86,0.2)]" : "border-slate-800/80 bg-[#0c121e]"}`}>
             <div className="w-8 h-8 rounded-lg bg-[#2E8556]/15 border border-[#2E8556]/30 flex items-center justify-center text-[#5DAE74] mb-3">
               <Zap className="w-4 h-4" />
             </div>
@@ -497,7 +574,7 @@ export default function FrontForumFocusDemoPage() {
             </p>
           </div>
 
-          <div className="p-5 rounded-xl border border-slate-800/80 bg-[#0c121e]">
+          <div className={`p-5 rounded-xl border transition ${persona === "carbon_buyer" ? "border-cyan-500 bg-[#0c1822] shadow-[0_0_20px_rgba(6,182,212,0.2)]" : "border-slate-800/80 bg-[#0c121e]"}`}>
             <div className="w-8 h-8 rounded-lg bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400 mb-3">
               <ShieldCheck className="w-4 h-4" />
             </div>
@@ -507,7 +584,7 @@ export default function FrontForumFocusDemoPage() {
             </p>
           </div>
 
-          <div className="p-5 rounded-xl border border-slate-800/80 bg-[#0c121e]">
+          <div className={`p-5 rounded-xl border transition ${persona === "investor" ? "border-indigo-500 bg-[#0c1822] shadow-[0_0_20px_rgba(99,102,241,0.2)]" : "border-slate-800/80 bg-[#0c121e]"}`}>
             <div className="w-8 h-8 rounded-lg bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 mb-3">
               <Building2 className="w-4 h-4" />
             </div>
@@ -523,15 +600,15 @@ export default function FrontForumFocusDemoPage() {
           <div className="space-y-1 text-center sm:text-left">
             <h3 className="text-base font-bold text-white">Ready to connect 1–2 test sites to FrontForumFocus?</h3>
             <p className="text-xs text-slate-300">
-              We deploy the dMRV adapter in 48 hours with zero hardware replacement.
+              Deploy our dMRV adapter in 48 hours for $500/month with zero hardware replacement.
             </p>
           </div>
           <div className="flex items-center gap-3 w-full sm:w-auto">
             <a
-              href="mailto:george.karani@startupgrind.com?subject=FrontForumFocus%20dMRV%20Pilot%20Inquiry"
+              href="mailto:george.karani@startupgrind.com?subject=Deploy%20%24500%2Fmo%20FrontForumFocus%20Pilot"
               className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-[#2E8556] hover:bg-[#267048] text-white text-xs font-bold transition flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(46,133,86,0.4)]"
             >
-              Request Pilot Deployment
+              Start $500/mo Pilot
               <ArrowRight className="w-4 h-4" />
             </a>
           </div>
@@ -568,9 +645,9 @@ export default function FrontForumFocusDemoPage() {
                 <div>methodology: &quot;UNFCCC-CDM-AMS-IF-V12&quot;</div>
                 <div>site_coordinates: &quot;-1.2921° N, 36.8219° E&quot;</div>
                 <div>inverter_brand: &quot;Growatt MAX 125KTL3&quot;</div>
-                <div>gross_energy_generated_kwh: 76500.00</div>
-                <div>baseline_grid_emission_factor_kg_co2_kwh: 0.720</div>
-                <div>net_avoided_co2e_metric_tons: 55.08</div>
+                <div>gross_energy_generated_kwh: {dailyKWh.toFixed(2)}</div>
+                <div>baseline_grid_emission_factor_kg_co2_kwh: {gridFactor.toFixed(3)}</div>
+                <div>net_avoided_co2e_metric_tons: {((dailyKWh * gridFactor) / 1000).toFixed(3)}</div>
                 <div>telemetry_sha256_root: &quot;0x7f4e8b9a2c3d1e0f6a5b4c3d2e1f0a9b8c7d6e5f4a3b2c1d0e&quot;</div>
                 <div>status: &quot;REGISTRY_AUDIT_READY&quot;</div>
               </div>
